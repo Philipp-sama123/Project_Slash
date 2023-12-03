@@ -20,7 +20,7 @@ class SLASH_API IHitInterface
 {
 	GENERATED_BODY()
 
-	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	virtual void GetHit(const FVector& ImpactPoint) = 0; // ToDo Read about passing reference
+	UFUNCTION(BlueprintNativeEvent) //to make it also available in BP 
+	void GetHit(const FVector& ImpactPoint);
 };

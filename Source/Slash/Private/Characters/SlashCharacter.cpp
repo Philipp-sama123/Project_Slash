@@ -41,6 +41,8 @@ void ASlashCharacter::BeginPlay()
 			Subsystem->AddMappingContext(SlashContext, 0);
 		}
 	}
+
+	Tags.Add(FName("SlashCharacter"));
 }
 
 void ASlashCharacter::Tick(float DeltaTime)
@@ -79,27 +81,30 @@ void ASlashCharacter::Equip(const FInputActionValue& Value)
 
 	if (OverlappingWeapon)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("WE HAVE AN OVERLAPPING ITEM :O!"));
 		switch (OverlappingWeapon->GetWeaponType())
 		{
 		case EWeaponType::EWT_Axes:
-			OverlappingWeapon->Equip(GetMesh(), FName("WEAPON_R"));
+			OverlappingWeapon->Equip(GetMesh(), FName("WEAPON_R"), this, this);
 			CharacterState = ECharacterState::ECS_EquippedAxes;
 			break;
 
 		case EWeaponType::EWT_Spear:
-			OverlappingWeapon->Equip(GetMesh(), FName("WEAPON_R"));
+			OverlappingWeapon->Equip(GetMesh(), FName("WEAPON_R"), this, this);
 			CharacterState = ECharacterState::ECS_EquippedSpear;
 			break;
 
 		case EWeaponType::EWT_Sword:
-			OverlappingWeapon->Equip(GetMesh(), FName("WEAPON_R"));
+			OverlappingWeapon->Equip(GetMesh(), FName("WEAPON_R"), this, this);
 			CharacterState = ECharacterState::ECS_EquippedSword;
 			break;
 
 		case EWeaponType::EWT_FlyingSwords:
-			OverlappingWeapon->Equip(GetMesh(), FName("WEAPON_R"));
+			OverlappingWeapon->Equip(GetMesh(), FName("WEAPON_R"), this, this);
 			CharacterState = ECharacterState::ECS_EquippedFlyingSwords;
+			break;
+		case EWeaponType::EWT_Hammer:
+			OverlappingWeapon->Equip(GetMesh(), FName("WEAPON_R"), this, this);
+			CharacterState = ECharacterState::ECS_EquippedHammer;
 			break;
 		default:
 			UE_LOG(LogTemp, Warning, TEXT("No WeaponType matching!"));
@@ -127,20 +132,20 @@ void ASlashCharacter::Equip(const FInputActionValue& Value)
 	}
 }
 
-void ASlashCharacter::PlayAttackMontage(UAnimMontage* CurrentAttackMontage) const
+void ASlashCharacter::PlayAttackMontage(UAnimMontage* CurrentAttackMontage)
 {
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && CurrentAttackMontage)
 	{
 		AnimInstance->Montage_Play(CurrentAttackMontage);
 		//ToDo: make all attacks work -> currently just 2-4 --  int32 Selection = FMath::RandRange(0, 7);
-		int32 Selection = FMath::RandRange(0, 3);
+		// int32 Selection = FMath::RandRange(0, 3);
 
 		FName SectionName = FName();
-		switch (Selection)
+		switch (CurrentAttackIndex)
 		{
 		case 0:
-			SectionName = FName("Attack2");
+			SectionName = FName("Attack1");
 			break;
 		case 1:
 			SectionName = FName("Attack2");
@@ -148,8 +153,15 @@ void ASlashCharacter::PlayAttackMontage(UAnimMontage* CurrentAttackMontage) cons
 		case 2:
 			SectionName = FName("Attack3");
 			break;
-		default: break;
+		case 3:
+			SectionName = FName("Attack4");
+			CurrentAttackIndex = -1;
+			break;
+		default:
+			CurrentAttackIndex = -1;
+			break;
 		}
+		CurrentAttackIndex = CurrentAttackIndex += 1;
 		AnimInstance->Montage_JumpToSection(SectionName, CurrentAttackMontage);
 	}
 }
@@ -189,6 +201,13 @@ void ASlashCharacter::PlayEquipMontage(const FName& SectionName)
 				AnimInstance->Montage_JumpToSection(SectionName, EquipMontageFlyingSwords);
 			}
 			break;
+		case EWeaponType::EWT_Hammer:
+			if (EquipMontageHammer)
+			{
+				AnimInstance->Montage_Play(EquipMontageHammer);
+				AnimInstance->Montage_JumpToSection(SectionName, EquipMontageHammer);
+			}
+			break;
 		default:
 			UE_LOG(LogTemp, Warning, TEXT("No CharacterState matching!"));
 			break;
@@ -213,6 +232,9 @@ void ASlashCharacter::Disarm()
 			EquippedWeapon->AttackMeshToSocket(GetMesh(), FName("SPEAR_SOCKET_BACK"));
 			break;
 		case EWeaponType::EWT_FlyingSwords:
+			EquippedWeapon->AttackMeshToSocket(GetMesh(), FName("SPEAR_SOCKET_BACK"));
+			break;
+		case EWeaponType::EWT_Hammer:
 			EquippedWeapon->AttackMeshToSocket(GetMesh(), FName("SPEAR_SOCKET_BACK"));
 			break;
 		default:
@@ -243,6 +265,10 @@ void ASlashCharacter::Arm()
 		case EWeaponType::EWT_FlyingSwords:
 			EquippedWeapon->AttackMeshToSocket(GetMesh(), FName("WEAPON_R"));
 			CharacterState = ECharacterState::ECS_EquippedFlyingSwords;
+			break;
+		case EWeaponType::EWT_Hammer:
+			EquippedWeapon->AttackMeshToSocket(GetMesh(), FName("WEAPON_R"));
+			CharacterState = ECharacterState::ECS_EquippedHammer;
 			break;
 		default:
 			UE_LOG(LogTemp, Warning, TEXT("Arm() CALLED NO STATE matching!"));
@@ -304,6 +330,8 @@ UAnimMontage* ASlashCharacter::SelectCurrentAttackMontage() const
 		return AttackMontageSword;
 	case ECharacterState::ECS_EquippedFlyingSwords:
 		return AttackMontageFlyingSwords;
+	case ECharacterState::ECS_EquippedHammer:
+		return AttackMontageHammer;
 	default:
 		return nullptr;
 	}

@@ -63,12 +63,12 @@ protected:
 	/**
 	 * Animation Montage Functions
 	 */
-	void PlayAttackMontage(UAnimMontage* CurrentAttackMontage) const;
+	void PlayAttackMontage(UAnimMontage* CurrentAttackMontage);
 
 	UFUNCTION(BlueprintCallable)
 	void AttackEnd();
 	void PlayEquipMontage(const FName& SectionName);
-	
+
 	bool CanAttack();
 	bool CanDisarm();
 	bool CanArm();
@@ -99,6 +99,8 @@ private:
 	UPROPERTY(VisibleAnywhere, Category=Weapon)
 	AWeapon* EquippedWeapon;
 
+	UPROPERTY(VisibleAnywhere, Category=Weapon)
+	int32 CurrentAttackIndex = 0;
 
 	/**
 	 * Animation Montages
@@ -114,6 +116,9 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category="Montages")
 	UAnimMontage* AttackMontageFlyingSwords;
+	
+	UPROPERTY(EditDefaultsOnly, Category="Montages")
+	UAnimMontage* AttackMontageHammer;
 
 	UPROPERTY(EditDefaultsOnly, Category="Montages")
 	UAnimMontage* EquipMontageSpear;
@@ -126,6 +131,9 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category="Montages")
 	UAnimMontage* EquipMontageFlyingSwords;
+	
+	UPROPERTY(EditDefaultsOnly, Category="Montages")
+	UAnimMontage* EquipMontageHammer;
 
 public:
 	FORCEINLINE void SetOverlappingItem(AItem* Item) { OverlappingItem = Item; }

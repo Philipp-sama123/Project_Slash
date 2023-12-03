@@ -16,6 +16,7 @@ enum class EWeaponType: uint8
 	EWT_Spear,
 	EWT_Axes,
 	EWT_FlyingSwords,
+	EWT_Hammer,
 };
 
 UCLASS()
@@ -26,7 +27,7 @@ class SLASH_API AWeapon : public AItem
 public:
 	AWeapon();
 	void AttackMeshToSocket(USceneComponent* InParent, FName InSocketName);
-	void Equip(USceneComponent* InParent, FName InSocketName);
+	void Equip(USceneComponent* InParent, FName InSocketName, AActor* NewOwner, APawn* NewInstigator);
 	TArray<AActor*> IgnoreActors;
 
 protected:
@@ -43,6 +44,9 @@ protected:
 	                  int32 OtherBodyIndex,
 	                  bool bFromSweep, const FHitResult& SweepResult);
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void CreateFields(const FVector& FieldLocation);
+
 private:
 	UPROPERTY(EditAnywhere, Category="Weapon Properties")
 	USoundBase* EquipSound;
@@ -58,6 +62,9 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	USceneComponent* BoxTraceEnd;
+
+	UPROPERTY(EditAnywhere, Category="Weapon Properties")
+	float Damage = 20.F;
 
 public:
 	FORCEINLINE UBoxComponent* GetWeaponBox() const { return WeaponBox; }
