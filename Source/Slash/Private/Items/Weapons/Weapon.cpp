@@ -68,19 +68,15 @@ void AWeapon::AttackMeshToSocket(USceneComponent* InParent, FName InSocketName)
 void AWeapon::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
                                    int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp, Warning, TEXT("OnSphereBeginOverlap"));
-
 	Super::OnSphereBeginOverlap(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
 }
 
 void AWeapon::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
                                  int32 OtherBodyIndex)
 {
-	UE_LOG(LogTemp, Warning, TEXT("OnSphereEndOverlap"));
 	Super::OnSphereEndOverlap(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex);
 }
 
-// TODO THINK
 void AWeapon::OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 						   int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
@@ -102,10 +98,10 @@ void AWeapon::OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 		Start,
 		End,
 		15.f,  // Specify the radius of the sphere
-		ETraceTypeQuery::TraceTypeQuery10,
+		ETraceTypeQuery::TraceTypeQuery1,
 		false,
 		ActorsToIgnore,
-		EDrawDebugTrace::Persistent,
+		EDrawDebugTrace::ForDuration,
 		SphereHit,
 		true
 	);
@@ -131,153 +127,3 @@ void AWeapon::OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 		CreateFields(SphereHit.ImpactPoint);
 	}
 }
-
-// TODO THINK
-// void AWeapon::OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-//                            int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-// {
-// 	UE_LOG(LogTemp, Warning, TEXT("OnBoxOverlap"));
-// 	const FVector Start = BoxTraceStart->GetComponentLocation();
-// 	const FVector End = BoxTraceEnd->GetComponentLocation();
-//
-// 	FHitResult BoxHit;
-// 	TArray<AActor*> ActorsToIgnore;
-// 	ActorsToIgnore.Add(this);
-//
-// 	for (AActor* Actor : IgnoreActors)
-// 	{
-// 		ActorsToIgnore.AddUnique(Actor);
-// 	}
-//
-// // ToDo: Replace with something more accurate (!)
-// 	//
-// 	// Replace it with a single check for the enemy and dont do additional stuff
-//
-// 	UKismetSystemLibrary::BoxTraceSingle(
-// 		this,
-// 		Start,
-// 		End,
-// 		FVector(5, 5, 5),
-// 		BoxTraceStart->GetComponentRotation(),
-// 		ETraceTypeQuery::TraceTypeQuery1,
-// 		false,
-// 		ActorsToIgnore,
-// 		EDrawDebugTrace::ForDuration,
-// 		BoxHit,
-// 		true
-// 	);
-// 	if (BoxHit.GetActor())
-// 	{
-// 		
-// 		UE_LOG(LogTemp, Warning, TEXT("OnBoxOverlap BoxHit.GetActor"));
-// 		UGameplayStatics::ApplyDamage(
-// 			BoxHit.GetActor(),
-// 			Damage,
-// 			GetInstigator()->GetController(),
-// 			this,
-// 			UDamageType::StaticClass()
-// 		);
-//
-// 		IHitInterface* HitInterface = Cast<IHitInterface>(BoxHit.GetActor());
-// 		if (HitInterface)
-// 		{
-// 			HitInterface->Execute_GetHit(BoxHit.GetActor(), BoxHit.ImpactPoint);
-// 		}
-// 		IgnoreActors.AddUnique(BoxHit.GetActor());
-//
-// 		CreateFields(BoxHit.ImpactPoint);
-// 	}
-// }
-// TODO THINK
-// void AWeapon::OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-//                            int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-// {
-// 	const FVector Start = BoxTraceStart->GetComponentLocation();
-// 	const FVector End = BoxTraceEnd->GetComponentLocation();
-//
-// 	TArray<FHitResult> HitResults;
-// 	TArray<AActor*> ActorsToIgnore;
-// 	ActorsToIgnore.Add(this);
-//
-// 	for (AActor* Actor : IgnoreActors)
-// 	{
-// 		ActorsToIgnore.AddUnique(Actor);
-// 	}
-//
-// 	// ToDo: Replace with something m
-// 	UKismetSystemLibrary::BoxTraceMulti(
-// 		this,
-// 		Start,
-// 		End,
-// 		FVector(10.f, 10.f, 10.f),
-// 		BoxTraceStart->GetComponentRotation(),
-// 		ETraceTypeQuery::TraceTypeQuery1,
-// 		false,
-// 		ActorsToIgnore,
-// 		EDrawDebugTrace::ForDuration,
-// 		HitResults,
-// 		true
-// 	);
-//
-// 	for (const FHitResult& HitResult : HitResults)
-// 	{
-// 		AActor* HitActor = HitResult.GetActor();
-// 		if (HitActor)
-// 		{
-// 			UE_LOG(LogTemp, Warning, TEXT("OnBoxOverlap HitActor: %s"), *HitActor->GetName());
-//
-// 			UGameplayStatics::ApplyDamage(
-// 				HitActor,
-// 				Damage,
-// 				GetInstigator()->GetController(),
-// 				this,
-// 				UDamageType::StaticClass()
-// 			);
-//
-// 			IHitInterface* HitInterface = Cast<IHitInterface>(HitActor);
-// 			if (HitInterface)
-// 			{
-// 				HitInterface->Execute_GetHit(HitActor, HitResult.ImpactPoint);
-// 			}
-//
-// 			IgnoreActors.AddUnique(HitActor);
-//
-// 			CreateFields(HitResult.ImpactPoint);
-// 		}
-// 	}
-// }
-// TODO Think
-// void AWeapon::OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-//                            int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-// {
-// 	UE_LOG(LogTemp, Warning, TEXT("OnBoxOverlap"));
-// 	TArray<AActor*> ActorsToIgnore;
-// 	ActorsToIgnore.Add(this);
-//
-// 	for (AActor* Actor : IgnoreActors)
-// 	{
-// 		ActorsToIgnore.AddUnique(Actor);
-// 	}
-//
-//
-// 	if (SweepResult.GetActor())
-// 	{
-// 		UE_LOG(LogTemp, Warning, TEXT("OnBoxOverlap BoxHit.GetActor"));
-// 		UGameplayStatics::ApplyDamage(
-// 			SweepResult.GetActor(),
-// 			Damage,
-// 			GetInstigator()->GetController(),
-// 			this,
-// 			UDamageType::StaticClass()
-// 		);
-//
-// 		IHitInterface* HitInterface = Cast<IHitInterface>(SweepResult.GetActor());
-// 		if (HitInterface)
-// 		{
-// 			HitInterface->Execute_GetHit(SweepResult.GetActor(), SweepResult.ImpactPoint);
-// 		}
-// 		IgnoreActors.AddUnique(SweepResult.GetActor());
-//
-// 		CreateFields(SweepResult.ImpactPoint);
-// 	}
-// }

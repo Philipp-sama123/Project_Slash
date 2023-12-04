@@ -30,6 +30,9 @@ public:
 	void Equip(USceneComponent* InParent, FName InSocketName, AActor* NewOwner, APawn* NewInstigator);
 	TArray<AActor*> IgnoreActors;
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void CreateFields(const FVector& FieldLocation);
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -43,9 +46,6 @@ protected:
 	void OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
 	                  int32 OtherBodyIndex,
 	                  bool bFromSweep, const FHitResult& SweepResult);
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void CreateFields(const FVector& FieldLocation);
 
 private:
 	UPROPERTY(EditAnywhere, Category="Weapon Properties")
@@ -70,4 +70,7 @@ public:
 	FORCEINLINE UBoxComponent* GetWeaponBox() const { return WeaponBox; }
 	FORCEINLINE void SetWeaponType(EWeaponType Type) { WeaponType = Type; }
 	FORCEINLINE EWeaponType GetWeaponType() const { return WeaponType; }
+	FORCEINLINE USceneComponent* GetBoxTraceStart() const { return BoxTraceStart; }
+	FORCEINLINE USceneComponent* GetBoxTraceEnd() const { return BoxTraceEnd; }
+	FORCEINLINE float GetDamage() const { return Damage; }
 };

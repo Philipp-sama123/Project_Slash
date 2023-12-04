@@ -285,6 +285,8 @@ void ASlashCharacter::FinishEquipping()
 void ASlashCharacter::AttackEnd()
 {
 	ActionState = EActionState::EAS_Unoccupied;
+	
+	EquippedWeapon->IgnoreActors.Empty();
 }
 
 void ASlashCharacter::Attack(const FInputActionValue& Value)
