@@ -3,19 +3,20 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Characters/BaseCharacter.h"
 #include "Characters/CharacterTypes.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/HitInterface.h"
 
 #include "Enemy.generated.h"
+
 class UPawnSensingComponent;
 class UHealthBarComponent;
-class UAnimMontage;
 class UAttributeComponent;
 class AAIController;
 
 UCLASS()
-class SLASH_API AEnemy : public ACharacter, public IHitInterface
+class SLASH_API AEnemy : public ABaseCharacter
 {
 	GENERATED_BODY()
 
@@ -24,37 +25,16 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
-	void DirectionalHitReact(const FVector& ImpactPoint);
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
 	                         AActor* DamageCauser) override;
 
 private:
-	/**
-	 * Components
-	 */
-	UPROPERTY(VisibleAnywhere)
-	UAttributeComponent* Attributes;
-
 	UPROPERTY(VisibleAnywhere)
 	UHealthBarComponent* HealthBarWidget;
 
 	UPROPERTY(VisibleAnywhere)
 	UPawnSensingComponent* PawnSensing;
-	/**
-	 * Animation Montages
-	 */
-	UPROPERTY(EditDefaultsOnly, Category="Montages")
-	UAnimMontage* HitReactMontage;
-
-	UPROPERTY(EditDefaultsOnly, Category="Montages")
-	UAnimMontage* DeathMontage;
-
-	UPROPERTY(EditAnywhere, Category="Sounds")
-	USoundBase* HitSound;
-
-	UPROPERTY(EditAnywhere, Category="Visual Effects")
-	UParticleSystem* HitParticles;
-
+	
 	UPROPERTY(VisibleAnywhere, Category="Combat")
 	AActor* CombatTarget;
 
@@ -91,7 +71,7 @@ private:
 
 protected:
 	virtual void BeginPlay() override;
-	void Die();
+	virtual void Die() override;
 	bool InTargetRange(AActor* Target, double Radius);
 	void MoveToTarget(AActor* Target);
 	AActor* ChoosePatrolTarget();
@@ -101,10 +81,6 @@ protected:
 	UFUNCTION()
 	void PawnSeen(APawn* SeenPawn);
 
-	/*
-	* Animation Montage Functions
-	*/
-	void PlayHitReactMontage(const FName& SectionName);
 	UPROPERTY(BlueprintReadOnly)
 	EDeathPose DeathPose = EDeathPose::EDP_Alive;
 };

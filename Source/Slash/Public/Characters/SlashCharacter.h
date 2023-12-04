@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BaseCharacter.h"
 #include "CharacterTypes.h"
 #include "GameFramework/Character.h"
 
@@ -19,7 +20,7 @@ class AItem;
 class AWeapon;
 
 UCLASS()
-class SLASH_API ASlashCharacter : public ACharacter
+class SLASH_API ASlashCharacter : public ABaseCharacter
 {
 	GENERATED_BODY()
 
@@ -27,9 +28,6 @@ public:
 	ASlashCharacter();
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-
-	UFUNCTION(BlueprintCallable)
-	void SetWeaponCollisionEnabled(ECollisionEnabled::Type CollisionEnabled);
 
 protected:
 	virtual void BeginPlay() override;
@@ -63,13 +61,13 @@ protected:
 	/**
 	 * Animation Montage Functions
 	 */
-	void PlayAttackMontage(UAnimMontage* CurrentAttackMontage);
+	virtual void PlayAttackMontage(UAnimMontage* CurrentAttackMontage) override;
 
-	UFUNCTION(BlueprintCallable)
-	void AttackEnd();
+	virtual  void AttackEnd() override;
+	
 	void PlayEquipMontage(const FName& SectionName);
 
-	bool CanAttack();
+	virtual bool CanAttack() override;
 	bool CanDisarm();
 	bool CanArm();
 
@@ -97,29 +95,11 @@ private:
 	AItem* OverlappingItem;
 
 	UPROPERTY(VisibleAnywhere, Category=Weapon)
-	AWeapon* EquippedWeapon;
-
-	UPROPERTY(VisibleAnywhere, Category=Weapon)
 	int32 CurrentAttackIndex = 0;
 
 	/**
 	 * Animation Montages
 	 */
-	UPROPERTY(EditDefaultsOnly, Category="Montages")
-	UAnimMontage* AttackMontageSpear;
-
-	UPROPERTY(EditDefaultsOnly, Category="Montages")
-	UAnimMontage* AttackMontageSword;
-
-	UPROPERTY(EditDefaultsOnly, Category="Montages")
-	UAnimMontage* AttackMontageAxes;
-
-	UPROPERTY(EditDefaultsOnly, Category="Montages")
-	UAnimMontage* AttackMontageFlyingSwords;
-	
-	UPROPERTY(EditDefaultsOnly, Category="Montages")
-	UAnimMontage* AttackMontageHammer;
-
 	UPROPERTY(EditDefaultsOnly, Category="Montages")
 	UAnimMontage* EquipMontageSpear;
 
@@ -131,7 +111,7 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category="Montages")
 	UAnimMontage* EquipMontageFlyingSwords;
-	
+
 	UPROPERTY(EditDefaultsOnly, Category="Montages")
 	UAnimMontage* EquipMontageHammer;
 
