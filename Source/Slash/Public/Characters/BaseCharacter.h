@@ -31,7 +31,7 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Die();
 	virtual bool CanAttack();
-
+	
 	/**
 	 * Components
 	 */

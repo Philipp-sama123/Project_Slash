@@ -14,6 +14,7 @@ class UPawnSensingComponent;
 class UHealthBarComponent;
 class UAttributeComponent;
 class AAIController;
+class AWeapon;
 
 UCLASS()
 class SLASH_API AEnemy : public ABaseCharacter
@@ -27,6 +28,7 @@ public:
 	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
 	                         AActor* DamageCauser) override;
+	virtual void Destroyed() override;
 
 private:
 	UPROPERTY(VisibleAnywhere)
@@ -34,7 +36,10 @@ private:
 
 	UPROPERTY(VisibleAnywhere)
 	UPawnSensingComponent* PawnSensing;
-	
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<AWeapon> WeaponClass;
+
 	UPROPERTY(VisibleAnywhere, Category="Combat")
 	AActor* CombatTarget;
 
@@ -72,11 +77,15 @@ private:
 protected:
 	virtual void BeginPlay() override;
 	virtual void Die() override;
+	virtual void PlayAttackMontage(UAnimMontage* CurrentAttackMontage) override;
+	void Attack();
+	UAnimMontage* SelectCurrentAttackMontage();
 	bool InTargetRange(AActor* Target, double Radius);
 	void MoveToTarget(AActor* Target);
 	AActor* ChoosePatrolTarget();
 	void CheckCombatTarget();
 	void CheckPatrolTarget();
+
 
 	UFUNCTION()
 	void PawnSeen(APawn* SeenPawn);

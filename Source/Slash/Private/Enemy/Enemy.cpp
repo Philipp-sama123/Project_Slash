@@ -5,6 +5,8 @@
 
 #include "AIController.h"
 #include "NavigationPath.h"
+#include "Items/Weapons/Weapon.h"
+#include "Characters/BaseCharacter.h"
 #include "Characters/SlashCharacter.h"
 #include "Components/AttributeComponent.h"
 #include "Components/SkeletalMeshComponent.h"
@@ -44,7 +46,7 @@ AEnemy::AEnemy()
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	if (HealthBarWidget)
 	{
 		HealthBarWidget->SetVisibility(false);
@@ -55,6 +57,13 @@ void AEnemy::BeginPlay()
 	if (PawnSensing)
 	{
 		PawnSensing->OnSeePawn.AddDynamic(this, &AEnemy::PawnSeen);
+	}
+	UWorld* World = GetWorld();
+	if (World && WeaponClass)
+	{
+		AWeapon* DefaultWeapon = World->SpawnActor<AWeapon>(WeaponClass);
+		DefaultWeapon->Equip(GetMesh(), FName("WEAPON_R"), this, this);
+		EquippedWeapon = DefaultWeapon;
 	}
 }
 
@@ -83,7 +92,7 @@ void AEnemy::MoveToTarget(AActor* Target)
 
 	FAIMoveRequest MoveRequest;
 	MoveRequest.SetGoalActor(Target);
-	MoveRequest.SetAcceptanceRadius(15.f);
+	MoveRequest.SetAcceptanceRadius(60.f);
 
 	EnemyController->MoveTo(MoveRequest);
 }
@@ -195,7 +204,7 @@ void AEnemy::CheckCombatTarget()
 	{
 		//Inside Attack Range, attack character
 		EnemyState = EEnemyState::EES_Attacking;
-		//TODO: Attack Montage
+		Attack();
 		// UE_LOG(LogTemp, Warning, TEXT("ATTACK PLAYER"));
 	}
 }
@@ -208,6 +217,48 @@ void AEnemy::CheckPatrolTarget()
 
 		PatrolTarget = ChoosePatrolTarget();
 		GetWorldTimerManager().SetTimer(PatrolTimer, this, &AEnemy::PatrolTimerFinished, WaitTime);
+	}
+}
+
+void AEnemy::Attack()
+{
+	PlayAttackMontage(SelectCurrentAttackMontage());
+}
+
+UAnimMontage* AEnemy::SelectCurrentAttackMontage()
+{
+	return AttackMontageSword;
+}
+
+void AEnemy::PlayAttackMontage(UAnimMontage* CurrentAttackMontage)
+{
+	Super::PlayAttackMontage(CurrentAttackMontage);
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && CurrentAttackMontage)
+	{
+		AnimInstance->Montage_Play(CurrentAttackMontage);
+		int32 Selection = FMath::RandRange(0, 3);
+
+		FName SectionName = FName();
+		switch (Selection)
+		{
+		case 0:
+			SectionName = FName("Attack1");
+			break;
+		case 1:
+			SectionName = FName("Attack2");
+			break;
+		case 2:
+			SectionName = FName("Attack3");
+			break;
+		case 3:
+			SectionName = FName("Attack4");
+			break;
+		default:
+			break;
+		}
+		AnimInstance->Montage_JumpToSection(SectionName, CurrentAttackMontage);
 	}
 }
 
@@ -282,4 +333,13 @@ float AEnemy::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AC
 	MoveToTarget(CombatTarget);
 
 	return DamageAmount;
+}
+
+void AEnemy::Destroyed()
+{
+	if (EquippedWeapon)
+	{
+		EquippedWeapon->Destroy(); // ToDo: just detach
+	}
+	Super::Destroyed();
 }
