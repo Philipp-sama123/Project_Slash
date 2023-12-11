@@ -14,6 +14,7 @@ class UPawnSensingComponent;
 class UHealthBarComponent;
 class UAttributeComponent;
 class AAIController;
+class UInputComponent;
 class AWeapon;
 
 UCLASS()
@@ -24,7 +25,6 @@ class SLASH_API AEnemy : public ABaseCharacter
 public:
 	AEnemy();
 	virtual void Tick(float DeltaTime) override;
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
 	                         AActor* DamageCauser) override;
@@ -52,6 +52,11 @@ private:
 	/**
 	 * Navigation
 	 */
+
+	FTimerHandle PatrolTimer;
+
+	void PatrolTimerFinished();
+
 	UPROPERTY(EditInstanceOnly, Category="AI Navigation")
 	AAIController* EnemyController;
 
@@ -64,32 +69,69 @@ private:
 	UPROPERTY(EditAnywhere, Category="AI Navigation")
 	double PatrolRadius = 200.f;
 
-	FTimerHandle PatrolTimer;
-	void PatrolTimerFinished();
-
 	UPROPERTY(EditAnywhere, Category="AI Navigation")
 	float WaitMin = 5.f;
+
 	UPROPERTY(EditAnywhere, Category="AI Navigation")
 	float WaitMax = 10.f;
+	/**
+	 * AI Behavior
+	 */
+	void HideHealthBar();
+	void ShowHealthBar();
+	void LoseInterest();
+	void StartPatrolling();
+	void ChaseTarget();
+	void ClearPatrolTimer();
 
-	EEnemyState EnemyState = EEnemyState::EES_Patrolling;
+	bool IsOutsideCombatRadius();
+	bool IsOutsideAttackRadius();
+	bool IsInsideAttackRadius();
+	bool IsChasing();
+	bool IsAttacking();
+	bool IsEngaged();
+	bool IsDead();
+	/**
+	 * Combat
+	 */
+	void StartAttackTimer();
+	void ClearAttackTimer();
+
+	FTimerHandle AttackTimer;
+	UPROPERTY(EditAnywhere, Category="Combat")
+	float AttackMin = 0.5f;
+
+	UPROPERTY(EditAnywhere, Category="Combat")
+	float AttackMax = 2.5f;
+
+	UPROPERTY(EditAnywhere, Category="Combat")
+	float PatrollingSpeed = 100.f;
+
+	UPROPERTY(EditAnywhere, Category="Combat")
+	float ChasingSpeed = 250.f;
 
 protected:
 	virtual void BeginPlay() override;
 	virtual void Die() override;
 	virtual void PlayAttackMontage(UAnimMontage* CurrentAttackMontage) override;
-	void Attack();
-	UAnimMontage* SelectCurrentAttackMontage();
+	virtual bool CanAttack() override;
+	virtual void HandleDamage(float DamageAmount) override;
 	bool InTargetRange(AActor* Target, double Radius);
 	void MoveToTarget(AActor* Target);
-	AActor* ChoosePatrolTarget();
+
 	void CheckCombatTarget();
 	void CheckPatrolTarget();
+	void Attack();
 
+	UAnimMontage* SelectCurrentAttackMontage();
+	AActor* ChoosePatrolTarget();
 
 	UFUNCTION()
 	void PawnSeen(APawn* SeenPawn);
 
 	UPROPERTY(BlueprintReadOnly)
-	EDeathPose DeathPose = EDeathPose::EDP_Alive;
+	EDeathPose DeathPose;
+
+	UPROPERTY(BlueprintReadOnly)
+	EEnemyState EnemyState = EEnemyState::EES_Patrolling;
 };

@@ -31,18 +31,12 @@ protected:
 	virtual void BeginPlay() override;
 	virtual void Die();
 	virtual bool CanAttack();
-	
+	bool IsAlive();
 	/**
 	 * Components
 	 */
 	UPROPERTY(VisibleAnywhere)
 	UAttributeComponent* Attributes;
-
-	UPROPERTY(EditAnywhere, Category="Sounds")
-	USoundBase* HitSound;
-
-	UPROPERTY(EditAnywhere, Category="Visual Effects")
-	UParticleSystem* HitParticles;
 
 	UPROPERTY(VisibleAnywhere, Category=Weapon)
 	AWeapon* EquippedWeapon;
@@ -51,12 +45,13 @@ protected:
 	 * Animation Montage Functions
 	 */
 	virtual void PlayAttackMontage(UAnimMontage* CurrentAttackMontage);
+	virtual void HandleDamage(float DamageAmount);
 
-	/**
-	 * Play Animation Montages
-	 */
 	void PlayHitReactMontage(const FName& SectionName);
 	void DirectionalHitReact(const FVector& ImpactPoint);
+	void PlayHitSound(const FVector& ImpactPoint);
+	void SpawnHitParticles(const FVector& ImpactPoint);
+
 
 	/**
 	 * Animation Montages
@@ -81,4 +76,11 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category="Montages")
 	UAnimMontage* AttackMontageHammer;
+
+private:
+	UPROPERTY(EditAnywhere, Category="Sounds")
+	USoundBase* HitSound;
+
+	UPROPERTY(EditAnywhere, Category="Visual Effects")
+	UParticleSystem* HitParticles;
 };
