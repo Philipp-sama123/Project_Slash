@@ -5,6 +5,7 @@
 
 #include "Components/AttributeComponent.h"
 #include  "Components/BoxComponent.h"
+#include "Components/CapsuleComponent.h"
 
 #include "Items/Weapons/Weapon.h"
 #include "Kismet/GameplayStatics.h"
@@ -78,6 +79,43 @@ void ABaseCharacter::DirectionalHitReact(const FVector& ImpactPoint)
 	PlayHitReactMontage(Section);
 }
 
+void ABaseCharacter::PlayMontageSection(UAnimMontage* Montage, const FName& SectionName)
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && Montage)
+	{
+		AnimInstance->Montage_Play(Montage);
+		AnimInstance->Montage_JumpToSection(SectionName);
+	}
+}
+
+int32 ABaseCharacter::PlayRandomMontageSection(UAnimMontage* Montage, const TArray<FName>& SectionNames)
+{
+	if (SectionNames.Num() < 0) return -1;
+
+	const int32 MaxSectionIndex = SectionNames.Num() - 1;
+	const int32 Selection = FMath::RandRange(0, MaxSectionIndex);
+
+	PlayMontageSection(Montage, SectionNames[Selection]);
+	return Selection;
+}
+
+int32 ABaseCharacter::PlayAttackMontage(UAnimMontage* CurrentAttackMontage)
+{
+	return PlayRandomMontageSection(CurrentAttackMontage, AttackMontageSections);
+}
+
+int32 ABaseCharacter::PlayDeathMontage()
+{
+	return PlayRandomMontageSection(DeathMontage, DeathMontageSections);
+}
+
+void ABaseCharacter::DisableCapsule()
+{
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+}
+
 void ABaseCharacter::PlayHitSound(const FVector& ImpactPoint)
 {
 	if (HitSound)
@@ -116,10 +154,6 @@ void ABaseCharacter::AttackEnd()
 }
 
 void ABaseCharacter::Die()
-{
-}
-
-void ABaseCharacter::PlayAttackMontage(UAnimMontage* CurrentAttackMontage)
 {
 }
 

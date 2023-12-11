@@ -132,40 +132,6 @@ void ASlashCharacter::Equip(const FInputActionValue& Value)
 	}
 }
 
-void ASlashCharacter::PlayAttackMontage(UAnimMontage* CurrentAttackMontage)
-{
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	if (AnimInstance && CurrentAttackMontage)
-	{
-		AnimInstance->Montage_Play(CurrentAttackMontage);
-		//ToDo: make all attacks work -> currently just 2-4 --  int32 Selection = FMath::RandRange(0, 7);
-		// int32 Selection = FMath::RandRange(0, 3);
-
-		FName SectionName = FName();
-		switch (CurrentAttackIndex)
-		{
-		case 0:
-			SectionName = FName("Attack1");
-			break;
-		case 1:
-			SectionName = FName("Attack2");
-			break;
-		case 2:
-			SectionName = FName("Attack3");
-			break;
-		case 3:
-			SectionName = FName("Attack4");
-			CurrentAttackIndex = -1;
-			break;
-		default:
-			CurrentAttackIndex = -1;
-			break;
-		}
-		CurrentAttackIndex = CurrentAttackIndex += 1;
-		AnimInstance->Montage_JumpToSection(SectionName, CurrentAttackMontage);
-	}
-}
-
 void ASlashCharacter::PlayEquipMontage(const FName& SectionName)
 {
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();

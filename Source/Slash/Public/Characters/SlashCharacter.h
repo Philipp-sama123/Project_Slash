@@ -61,7 +61,6 @@ protected:
 	/**
 	 * Animation Montage Functions
 	 */
-	virtual void PlayAttackMontage(UAnimMontage* CurrentAttackMontage) override;
 
 	virtual  void AttackEnd() override;
 	
@@ -93,9 +92,6 @@ private:
 
 	UPROPERTY(VisibleInstanceOnly)
 	AItem* OverlappingItem;
-
-	UPROPERTY(VisibleAnywhere, Category=Weapon)
-	int32 CurrentAttackIndex = 0;
 
 	/**
 	 * Animation Montages
