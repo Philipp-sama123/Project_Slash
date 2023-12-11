@@ -14,19 +14,31 @@
 
 ASlashCharacter::ASlashCharacter()
 {
-	PrimaryActorTick.bCanEverTick = true;
+	PrimaryActorTick.bCanEverTick = false;
 
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(GetRootComponent());
-	CameraBoom->TargetArmLength = 300.f;
+	CameraBoom->TargetArmLength = 200.f;
 
 	ViewCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("ViewCamera"));
 	ViewCamera->SetupAttachment(CameraBoom);
 
-
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
+}
+
+void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
+	{
+		EnhancedInputComponent->BindAction(MovementAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Move);
+		EnhancedInputComponent->BindAction(LookingAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Look);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
+		EnhancedInputComponent->BindAction(EquipAction, ETriggerEvent::Started, this, &ASlashCharacter::Equip);
+		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &ASlashCharacter::Attack);
+	}
 }
 
 void ASlashCharacter::BeginPlay()
@@ -45,9 +57,17 @@ void ASlashCharacter::BeginPlay()
 	Tags.Add(FName("SlashCharacter"));
 }
 
-void ASlashCharacter::Tick(float DeltaTime)
+void ASlashCharacter::AttackEnd()
 {
-	Super::Tick(DeltaTime);
+	ActionState = EActionState::EAS_Unoccupied;
+
+	EquippedWeapon->IgnoreActors.Empty();
+}
+
+bool ASlashCharacter::CanAttack()
+{
+	return ActionState == EActionState::EAS_Unoccupied &&
+		CharacterState != ECharacterState::ECS_Unequipped;
 }
 
 void ASlashCharacter::Move(const FInputActionValue& Value)
@@ -81,55 +101,64 @@ void ASlashCharacter::Equip(const FInputActionValue& Value)
 
 	if (OverlappingWeapon)
 	{
-		switch (OverlappingWeapon->GetWeaponType())
-		{
-		case EWeaponType::EWT_Axes:
-			OverlappingWeapon->Equip(GetMesh(), FName("WEAPON_R"), this, this);
-			CharacterState = ECharacterState::ECS_EquippedAxes;
-			break;
-
-		case EWeaponType::EWT_Spear:
-			OverlappingWeapon->Equip(GetMesh(), FName("WEAPON_R"), this, this);
-			CharacterState = ECharacterState::ECS_EquippedSpear;
-			break;
-
-		case EWeaponType::EWT_Sword:
-			OverlappingWeapon->Equip(GetMesh(), FName("WEAPON_R"), this, this);
-			CharacterState = ECharacterState::ECS_EquippedSword;
-			break;
-
-		case EWeaponType::EWT_FlyingSwords:
-			OverlappingWeapon->Equip(GetMesh(), FName("WEAPON_R"), this, this);
-			CharacterState = ECharacterState::ECS_EquippedFlyingSwords;
-			break;
-		case EWeaponType::EWT_Hammer:
-			OverlappingWeapon->Equip(GetMesh(), FName("WEAPON_R"), this, this);
-			CharacterState = ECharacterState::ECS_EquippedHammer;
-			break;
-		default:
-			UE_LOG(LogTemp, Warning, TEXT("No WeaponType matching!"));
-			break;
-		}
-
-		EquippedWeapon = OverlappingWeapon;
-		OverlappingItem = nullptr;
+		EquipWeapon(OverlappingWeapon);
 	}
 	else
 	{
 		if (CanDisarm())
 		{
-			UE_LOG(LogTemp, Warning, TEXT("WE HAVE NOOOOOOOOOOOOOO OVERLAPPING ITEM :O!"));
-			PlayEquipMontage(FName("Unequip"));
-			CharacterState = ECharacterState::ECS_Unequipped;
-			ActionState = EActionState::EAS_EquippingWeapon;
+			Disarm();
 		}
 		else if (CanArm())
 		{
-			PlayEquipMontage(FName("Equip"));
-			CharacterState = ECharacterState::ECS_EquippedSpear;
-			ActionState = EActionState::EAS_EquippingWeapon;
+			Arm();
 		}
 	}
+}
+
+void ASlashCharacter::Attack(const FInputActionValue& Value)
+{
+	if (CanAttack())
+	{
+		PlayAttackMontage(SelectCurrentAttackMontage());
+		ActionState = EActionState::EAS_Attacking;
+	}
+}
+
+void ASlashCharacter::EquipWeapon(AWeapon* Weapon)
+{
+	switch (Weapon->GetWeaponType())
+	{
+	case EWeaponType::EWT_Axes:
+		Weapon->Equip(GetMesh(), FName("WEAPON_R"), this, this);
+		CharacterState = ECharacterState::ECS_EquippedAxes;
+		break;
+
+	case EWeaponType::EWT_Spear:
+		Weapon->Equip(GetMesh(), FName("WEAPON_R"), this, this);
+		CharacterState = ECharacterState::ECS_EquippedSpear;
+		break;
+
+	case EWeaponType::EWT_Sword:
+		Weapon->Equip(GetMesh(), FName("WEAPON_R"), this, this);
+		CharacterState = ECharacterState::ECS_EquippedSword;
+		break;
+
+	case EWeaponType::EWT_FlyingSwords:
+		Weapon->Equip(GetMesh(), FName("WEAPON_R"), this, this);
+		CharacterState = ECharacterState::ECS_EquippedFlyingSwords;
+		break;
+	case EWeaponType::EWT_Hammer:
+		Weapon->Equip(GetMesh(), FName("WEAPON_R"), this, this);
+		CharacterState = ECharacterState::ECS_EquippedHammer;
+		break;
+	default:
+		UE_LOG(LogTemp, Warning, TEXT("No WeaponType matching!"));
+		break;
+	}
+
+	OverlappingItem = nullptr;
+	EquippedWeapon = Weapon;
 }
 
 void ASlashCharacter::PlayEquipMontage(const FName& SectionName)
@@ -181,8 +210,33 @@ void ASlashCharacter::PlayEquipMontage(const FName& SectionName)
 	}
 }
 
+bool ASlashCharacter::CanDisarm()
+{
+	return ActionState == EActionState::EAS_Unoccupied &&
+		CharacterState != ECharacterState::ECS_Unequipped;
+}
+
+bool ASlashCharacter::CanArm()
+{
+	return ActionState == EActionState::EAS_Unoccupied &&
+		CharacterState == ECharacterState::ECS_Unequipped &&
+		EquippedWeapon;
+}
+
+void ASlashCharacter::Arm()
+{
+	PlayEquipMontage(FName("Equip"));
+	ActionState = EActionState::EAS_EquippingWeapon;
+}
 
 void ASlashCharacter::Disarm()
+{
+	PlayEquipMontage(FName("Unequip"));
+	CharacterState = ECharacterState::ECS_Unequipped;
+	ActionState = EActionState::EAS_EquippingWeapon;
+}
+
+void ASlashCharacter::AttachWeaponOnBack()
 {
 	if (EquippedWeapon)
 	{
@@ -210,7 +264,7 @@ void ASlashCharacter::Disarm()
 	}
 }
 
-void ASlashCharacter::Arm()
+void ASlashCharacter::AttachWeaponOnHand()
 {
 	if (EquippedWeapon)
 	{
@@ -248,35 +302,6 @@ void ASlashCharacter::FinishEquipping()
 	ActionState = EActionState::EAS_Unoccupied;
 }
 
-void ASlashCharacter::AttackEnd()
-{
-	ActionState = EActionState::EAS_Unoccupied;
-	
-	EquippedWeapon->IgnoreActors.Empty();
-}
-
-void ASlashCharacter::Attack(const FInputActionValue& Value)
-{
-	if (CanAttack())
-	{
-		PlayAttackMontage(SelectCurrentAttackMontage());
-		ActionState = EActionState::EAS_Attacking;
-	}
-}
-
-void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
-	{
-		EnhancedInputComponent->BindAction(MovementAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Move);
-		EnhancedInputComponent->BindAction(LookingAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Look);
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
-		EnhancedInputComponent->BindAction(EquipAction, ETriggerEvent::Started, this, &ASlashCharacter::Equip);
-		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &ASlashCharacter::Attack);
-	}
-}
-
 UAnimMontage* ASlashCharacter::SelectCurrentAttackMontage() const
 {
 	switch (CharacterState)
@@ -294,23 +319,4 @@ UAnimMontage* ASlashCharacter::SelectCurrentAttackMontage() const
 	default:
 		return nullptr;
 	}
-}
-
-bool ASlashCharacter::CanAttack()
-{
-	return ActionState == EActionState::EAS_Unoccupied &&
-		CharacterState != ECharacterState::ECS_Unequipped;
-}
-
-bool ASlashCharacter::CanDisarm()
-{
-	return ActionState == EActionState::EAS_Unoccupied &&
-		CharacterState != ECharacterState::ECS_Unequipped;
-}
-
-bool ASlashCharacter::CanArm()
-{
-	return ActionState == EActionState::EAS_Unoccupied &&
-		CharacterState == ECharacterState::ECS_Unequipped &&
-		EquippedWeapon;
 }

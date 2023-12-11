@@ -19,54 +19,42 @@ class SLASH_API ABaseCharacter : public ACharacter, public IHitInterface
 
 public:
 	ABaseCharacter();
+
+	/** < AActor > */
 	virtual void Tick(float DeltaTime) override;
-
-	UFUNCTION(BlueprintCallable)
-	virtual void SetWeaponCollisionEnabled(ECollisionEnabled::Type CollisionEnabled);
-
-	UFUNCTION(BlueprintCallable)
-	virtual void AttackEnd();
+	/** </ AActor > */
 
 protected:
+	/** < AActor > */
 	virtual void BeginPlay() override;
+	/** </ AActor > */
+
+	bool IsAlive();
+	void DisableCapsule();
+	void DirectionalHitReact(const FVector& ImpactPoint);
+	void PlayHitSound(const FVector& ImpactPoint);
+	void SpawnHitParticles(const FVector& ImpactPoint);
+	void PlayHitReactMontage(const FName& SectionName);
+	virtual int32 PlayAttackMontage(UAnimMontage* CurrentAttackMontage);
+	virtual int32 PlayDeathMontage();
+	
 	virtual void Die();
 	virtual bool CanAttack();
-	bool IsAlive();
-	/**
-	 * Components
-	 */
+	virtual void HandleDamage(float DamageAmount);
+	
+	UFUNCTION(BlueprintCallable)
+	virtual void AttackEnd();
+	
+	UFUNCTION(BlueprintCallable)
+	virtual void SetWeaponCollisionEnabled(ECollisionEnabled::Type CollisionEnabled);
+	
+
 	UPROPERTY(VisibleAnywhere)
 	UAttributeComponent* Attributes;
 
 	UPROPERTY(VisibleAnywhere, Category=Weapon)
 	AWeapon* EquippedWeapon;
-
-	/**
-	 * Animation Montage Functions
-	 */
 	
-	void PlayMontageSection(UAnimMontage* Montage, const FName& SectionName);
-	int32 PlayRandomMontageSection(UAnimMontage* Montage, const TArray<FName>& SectionNames);
-	virtual int32 PlayAttackMontage(UAnimMontage* CurrentAttackMontage);
-	virtual int32 PlayDeathMontage();
-	void DisableCapsule();
-	virtual void HandleDamage(float DamageAmount);
-
-	void PlayHitReactMontage(const FName& SectionName);
-	void DirectionalHitReact(const FVector& ImpactPoint);
-	void PlayHitSound(const FVector& ImpactPoint);
-	void SpawnHitParticles(const FVector& ImpactPoint);
-
-
-	/**
-	 * Animation Montages
-	*/
-	UPROPERTY(EditDefaultsOnly, Category="Montages")
-	UAnimMontage* DeathMontage;
-
-	UPROPERTY(EditDefaultsOnly, Category="Montages")
-	UAnimMontage* HitReactMontage;
-
 	UPROPERTY(EditDefaultsOnly, Category="Montages")
 	UAnimMontage* AttackMontageSpear;
 
@@ -82,13 +70,22 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="Montages")
 	UAnimMontage* AttackMontageHammer;
 
+private:
+	int32 PlayRandomMontageSection(UAnimMontage* Montage, const TArray<FName>& SectionNames);
+	void PlayMontageSection(UAnimMontage* Montage, const FName& SectionName);
+	
+	UPROPERTY(EditDefaultsOnly, Category="Montages")
+	UAnimMontage* DeathMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category="Montages")
+	UAnimMontage* HitReactMontage;
+
 	UPROPERTY(EditAnywhere, Category="Combat")
 	TArray<FName> AttackMontageSections;
-	
+
 	UPROPERTY(EditAnywhere, Category="Combat")
 	TArray<FName> DeathMontageSections;
 
-private:
 	UPROPERTY(EditAnywhere, Category="Sounds")
 	USoundBase* HitSound;
 

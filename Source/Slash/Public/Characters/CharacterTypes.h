@@ -30,7 +30,7 @@ enum EDeathPose: uint8
 	EDP_Death6 UMETA(DisplayName="Dead 06"),
 	EDP_Death7 UMETA(DisplayName="Dead 07"),
 	EDP_Death8 UMETA(DisplayName="Dead 08"),
-	
+
 	EDP_MAX UMETA(DisplayName="Default Max")
 };
 
@@ -41,5 +41,7 @@ enum class EEnemyState: uint8
 	EES_Patrolling UMETA(DisplayName="Patrolling"),
 	EES_Chasing UMETA(DisplayName="Chasing"),
 	EES_Attacking UMETA(DisplayName="Attacking"),
-	EES_Engaged UMETA(DisplayName="Engaged")
+	EES_Engaged UMETA(DisplayName="Engaged"),
+
+	EES_NoState UMETA(DisplayName="No State")
 };

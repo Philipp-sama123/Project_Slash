@@ -11,9 +11,10 @@
 #include "SlashCharacter.generated.h"
 
 class UInputMappingContext;
-class UAnimMontage;
+class UInputComponent;
 class UInputAction;
 
+class UAnimMontage;
 class USpringArmComponent;
 class UCameraComponent;
 class AItem;
@@ -26,11 +27,41 @@ class SLASH_API ASlashCharacter : public ABaseCharacter
 
 public:
 	ASlashCharacter();
-	virtual void Tick(float DeltaTime) override;
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	/** < AActor >*/
+	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
+	/** </ AActor >*/
 
 protected:
+	/** < AActor >*/
 	virtual void BeginPlay() override;
+	/** </ AActor >*/
+
+	/** < ABaseCharacter >*/
+	virtual void AttackEnd() override;
+	virtual bool CanAttack() override;
+	/** </ ABaseCharacter >*/
+
+	/** Input Actions */
+	void Move(const FInputActionValue& Value);
+	void Look(const FInputActionValue& Value);
+	void Equip(const FInputActionValue& Value);
+	void Attack(const FInputActionValue& Value);
+
+	void EquipWeapon(AWeapon* Weapon);
+	void PlayEquipMontage(const FName& SectionName);
+	bool CanDisarm();
+	bool CanArm();
+	void Arm();
+	void Disarm();
+	
+	UFUNCTION(BlueprintCallable)
+	void AttachWeaponOnBack();
+
+	UFUNCTION(BlueprintCallable)
+	void AttachWeaponOnHand();
+
+	UFUNCTION(BlueprintCallable)
+	void FinishEquipping();
 
 	UPROPERTY(EditAnywhere, Category="Input")
 	UInputMappingContext* SlashContext;
@@ -50,40 +81,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Input")
 	UInputAction* AttackAction;
 
-	/**
-	 * Input Actions
-	 */
-	void Move(const FInputActionValue& Value);
-	void Look(const FInputActionValue& Value);
-	void Equip(const FInputActionValue& Value);
-	void Attack(const FInputActionValue& Value);
-
-	/**
-	 * Animation Montage Functions
-	 */
-
-	virtual  void AttackEnd() override;
-	
-	void PlayEquipMontage(const FName& SectionName);
-
-	virtual bool CanAttack() override;
-	bool CanDisarm();
-	bool CanArm();
-
-	UFUNCTION(BlueprintCallable)
-	void Disarm();
-
-	UFUNCTION(BlueprintCallable)
-	void Arm();
-
-	UFUNCTION(BlueprintCallable)
-	void FinishEquipping();
-
 private:
 	UAnimMontage* SelectCurrentAttackMontage() const;
-	ECharacterState CharacterState = ECharacterState::ECS_Unequipped;
-	EActionState ActionState = EActionState::EAS_Unoccupied;
 
+	/** Character Components */
 	UPROPERTY(VisibleAnywhere)
 	USpringArmComponent* CameraBoom;
 
@@ -93,9 +94,6 @@ private:
 	UPROPERTY(VisibleInstanceOnly)
 	AItem* OverlappingItem;
 
-	/**
-	 * Animation Montages
-	 */
 	UPROPERTY(EditDefaultsOnly, Category="Montages")
 	UAnimMontage* EquipMontageSpear;
 
@@ -110,6 +108,9 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category="Montages")
 	UAnimMontage* EquipMontageHammer;
+
+	ECharacterState CharacterState = ECharacterState::ECS_Unequipped;
+	EActionState ActionState = EActionState::EAS_Unoccupied;
 
 public:
 	FORCEINLINE void SetOverlappingItem(AItem* Item) { OverlappingItem = Item; }

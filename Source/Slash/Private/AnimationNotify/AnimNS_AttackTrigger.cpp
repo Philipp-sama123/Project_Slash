@@ -37,7 +37,7 @@ void UAnimNS_AttackTrigger::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSe
 				ETraceTypeQuery::TraceTypeQuery1,
 				false,
 				ActorsToIgnore,
-				EDrawDebugTrace::ForDuration,
+				EDrawDebugTrace::None,
 				SphereHit,
 				true
 			);
