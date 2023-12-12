@@ -104,6 +104,7 @@ void AWeapon::OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 
 	PerformSphereTrace(SphereHit);
 
+
 	if (SphereHit.GetActor())
 	{
 		if (IsActorSameType(SphereHit.GetActor()))
@@ -123,14 +124,14 @@ void AWeapon::PerformSphereTrace(FHitResult& SphereHit)
 	const FVector End = BoxTraceEnd->GetComponentLocation();
 
 	TArray<AActor*> ActorsToIgnore;
-	ActorsToIgnore.Add(this);
+	
+	ActorsToIgnore.Add(this->GetOwner());
 
 	for (AActor* Actor : IgnoreActors)
 	{
 		ActorsToIgnore.AddUnique(Actor);
 	}
 
-	// ToDo: Replace with something more accurate (!)
 	UKismetSystemLibrary::SphereTraceSingle(
 		this,
 		Start,
