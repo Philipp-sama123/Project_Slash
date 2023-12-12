@@ -12,6 +12,7 @@ class USceneComponent;
 UENUM(BlueprintType)
 enum class EWeaponType: uint8
 {
+	EWT_Fists,
 	EWT_Sword,
 	EWT_Spear,
 	EWT_Axes,

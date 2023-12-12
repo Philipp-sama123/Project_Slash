@@ -109,6 +109,9 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category="Montages")
 	UAnimMontage* EquipMontageHammer;
 
+	UPROPERTY(EditDefaultsOnly, Category="Montages")
+	UAnimMontage* EquipMontageFists;
+
 	ECharacterState CharacterState = ECharacterState::ECS_Unequipped;
 	EActionState ActionState = EActionState::EAS_Unoccupied;
 

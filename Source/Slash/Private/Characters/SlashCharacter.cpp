@@ -129,6 +129,11 @@ void ASlashCharacter::EquipWeapon(AWeapon* Weapon)
 {
 	switch (Weapon->GetWeaponType())
 	{
+	case EWeaponType::EWT_Fists:
+		Weapon->Equip(GetMesh(), FName("WEAPON_R"), this, this); // and Left?
+		CharacterState = ECharacterState::ECS_EquippedFists;
+		break;
+
 	case EWeaponType::EWT_Axes:
 		Weapon->Equip(GetMesh(), FName("WEAPON_R"), this, this);
 		CharacterState = ECharacterState::ECS_EquippedAxes;
@@ -203,6 +208,13 @@ void ASlashCharacter::PlayEquipMontage(const FName& SectionName)
 				AnimInstance->Montage_JumpToSection(SectionName, EquipMontageHammer);
 			}
 			break;
+		case EWeaponType::EWT_Fists:
+			if (EquipMontageFists)
+			{
+				AnimInstance->Montage_Play(EquipMontageFists);
+				AnimInstance->Montage_JumpToSection(SectionName, EquipMontageFists);
+			}
+			break;
 		default:
 			UE_LOG(LogTemp, Warning, TEXT("No CharacterState matching!"));
 			break;
@@ -257,6 +269,9 @@ void ASlashCharacter::AttachWeaponOnBack()
 		case EWeaponType::EWT_Hammer:
 			EquippedWeapon->AttackMeshToSocket(GetMesh(), FName("SPEAR_SOCKET_BACK"));
 			break;
+		case EWeaponType::EWT_Fists:
+			EquippedWeapon->AttackMeshToSocket(GetMesh(), FName("SPEAR_SOCKET_BACK"));
+			break;
 		default:
 			UE_LOG(LogTemp, Warning, TEXT("Disarm() CALLED NO STATE matching!"));
 			break;
@@ -270,6 +285,10 @@ void ASlashCharacter::AttachWeaponOnHand()
 	{
 		switch (EquippedWeapon->GetWeaponType())
 		{
+		case EWeaponType::EWT_Fists:
+			EquippedWeapon->AttackMeshToSocket(GetMesh(), FName("WEAPON_R"));
+			CharacterState = ECharacterState::ECS_EquippedFists;
+			break;
 		case EWeaponType::EWT_Axes:
 			EquippedWeapon->AttackMeshToSocket(GetMesh(), FName("WEAPON_R"));
 			CharacterState = ECharacterState::ECS_EquippedAxes;
@@ -316,6 +335,8 @@ UAnimMontage* ASlashCharacter::SelectCurrentAttackMontage() const
 		return AttackMontageFlyingSwords;
 	case ECharacterState::ECS_EquippedHammer:
 		return AttackMontageHammer;
+	case ECharacterState::ECS_EquippedFists:
+		return AttackMontageFists;
 	default:
 		return nullptr;
 	}

@@ -70,6 +70,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="Montages")
 	UAnimMontage* AttackMontageHammer;
 
+	UPROPERTY(EditDefaultsOnly, Category="Montages")
+	UAnimMontage* AttackMontageFists;
+
 private:
 	int32 PlayRandomMontageSection(UAnimMontage* Montage, const TArray<FName>& SectionNames);
 	void PlayMontageSection(UAnimMontage* Montage, const FName& SectionName);
