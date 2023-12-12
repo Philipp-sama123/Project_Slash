@@ -28,6 +28,8 @@ class SLASH_API AWeapon : public AItem
 public:
 	AWeapon();
 	void AttackMeshToSocket(USceneComponent* InParent, FName InSocketName);
+	void ExecuteGetHit(FHitResult SphereHit);
+	bool IsActorSameType(AActor* OtherActor);
 	void Equip(USceneComponent* InParent, FName InSocketName, AActor* NewOwner, APawn* NewInstigator);
 	TArray<AActor*> IgnoreActors;
 
@@ -36,12 +38,10 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	void PlayEquipSound();
+	void DisableSphereCollision();
+	void DisableEmbersEffect();
 
-	virtual void OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-	                                  int32 OtherBodyIndex,
-	                                  bool bFromSweep, const FHitResult& SweepResult) override;
-	virtual void OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
-	                                int32 OtherBodyIndex) override;
 
 	UFUNCTION()
 	void OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
@@ -49,6 +49,18 @@ protected:
 	                  bool bFromSweep, const FHitResult& SweepResult);
 
 private:
+	void PerformSphereTrace(FHitResult& SphereHit);
+	void PerformBoxTrace(FHitResult& BoxHit);
+
+	UPROPERTY(EditAnywhere, Category="Weapon Properties")
+	float SphereTraceRadius = 15.f;
+
+	UPROPERTY(EditAnywhere, Category="Weapon Properties")
+	FVector BoxTraceExtent = FVector(5.f);
+
+	UPROPERTY(EditAnywhere, Category="Weapon Properties")
+	bool bShowBoxDebug = false;
+
 	UPROPERTY(EditAnywhere, Category="Weapon Properties")
 	USoundBase* EquipSound;
 

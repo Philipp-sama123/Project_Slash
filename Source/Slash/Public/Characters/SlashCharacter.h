@@ -30,7 +30,9 @@ public:
 	/** < AActor >*/
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	/** </ AActor >*/
-
+	/** < ABaseCharacter >*/
+	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
+	/** </ ABaseCharacter >*/
 protected:
 	/** < AActor >*/
 	virtual void BeginPlay() override;
@@ -53,7 +55,7 @@ protected:
 	bool CanArm();
 	void Arm();
 	void Disarm();
-	
+
 	UFUNCTION(BlueprintCallable)
 	void AttachWeaponOnBack();
 

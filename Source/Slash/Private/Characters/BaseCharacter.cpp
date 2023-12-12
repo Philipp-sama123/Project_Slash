@@ -29,6 +29,18 @@ void ABaseCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
+void ABaseCharacter::GetHit_Implementation(const FVector& ImpactPoint)
+{
+	if (IsAlive())
+	{
+		DirectionalHitReact(ImpactPoint);
+	}
+	else Die();
+
+	PlayHitSound(ImpactPoint);
+	SpawnHitParticles(ImpactPoint);
+}
+
 bool ABaseCharacter::IsAlive()
 {
 	return Attributes && Attributes->IsAlive();
@@ -114,7 +126,6 @@ int32 ABaseCharacter::PlayDeathMontage()
 void ABaseCharacter::DisableCapsule()
 {
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
 }
 
 void ABaseCharacter::PlayHitSound(const FVector& ImpactPoint)

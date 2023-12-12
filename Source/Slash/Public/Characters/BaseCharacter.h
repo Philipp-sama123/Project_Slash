@@ -24,6 +24,9 @@ public:
 	virtual void Tick(float DeltaTime) override;
 	/** </ AActor > */
 
+	/** < IHitInterface > */
+	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
+	/** </ IHitInterface > */
 protected:
 	/** < AActor > */
 	virtual void BeginPlay() override;
