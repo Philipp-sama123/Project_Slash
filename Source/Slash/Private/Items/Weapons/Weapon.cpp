@@ -83,7 +83,7 @@ void AWeapon::ExecuteGetHit(FHitResult SphereHit)
 	IHitInterface* HitInterface = Cast<IHitInterface>(SphereHit.GetActor());
 	if (HitInterface)
 	{
-		HitInterface->Execute_GetHit(SphereHit.GetActor(), SphereHit.ImpactPoint);
+		HitInterface->Execute_GetHit(SphereHit.GetActor(), SphereHit.ImpactPoint, GetOwner());
 	}
 }
 
@@ -99,7 +99,7 @@ void AWeapon::OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor* Oth
 	{
 		return;
 	}
-	
+
 	FHitResult SphereHit;
 
 	PerformSphereTrace(SphereHit);
@@ -124,7 +124,7 @@ void AWeapon::PerformSphereTrace(FHitResult& SphereHit)
 	const FVector End = BoxTraceEnd->GetComponentLocation();
 
 	TArray<AActor*> ActorsToIgnore;
-	
+
 	ActorsToIgnore.Add(this->GetOwner());
 
 	for (AActor* Actor : IgnoreActors)

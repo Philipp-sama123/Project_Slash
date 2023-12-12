@@ -29,11 +29,11 @@ void ABaseCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 }
 
-void ABaseCharacter::GetHit_Implementation(const FVector& ImpactPoint)
+void ABaseCharacter::GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter)
 {
-	if (IsAlive())
+	if (IsAlive() && Hitter)
 	{
-		DirectionalHitReact(ImpactPoint);
+		DirectionalHitReact(Hitter->GetActorLocation());
 	}
 	else Die();
 

@@ -22,5 +22,5 @@ class SLASH_API IHitInterface
 
 public:
 	UFUNCTION(BlueprintNativeEvent) //to make it also available in BP 
-	void GetHit(const FVector& ImpactPoint);
+	void GetHit(const FVector& ImpactPoint, AActor* Hitter);
 };

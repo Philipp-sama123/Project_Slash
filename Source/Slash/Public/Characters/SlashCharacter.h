@@ -31,7 +31,7 @@ public:
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 	/** </ AActor >*/
 	/** < ABaseCharacter >*/
-	virtual void GetHit_Implementation(const FVector& ImpactPoint) override;
+	virtual void GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter) override;
 	/** </ ABaseCharacter >*/
 protected:
 	/** < AActor >*/

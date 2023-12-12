@@ -55,7 +55,7 @@ void UAnimNS_AttackTrigger::NotifyTick(USkeletalMeshComponent* MeshComp, UAnimSe
 				IHitInterface* HitInterface = Cast<IHitInterface>(SphereHit.GetActor());
 				if (HitInterface)
 				{
-					HitInterface->Execute_GetHit(SphereHit.GetActor(), SphereHit.ImpactPoint);
+					HitInterface->Execute_GetHit(SphereHit.GetActor(), SphereHit.ImpactPoint, MeshComp->GetOwner());
 				}
 
 				Weapon->IgnoreActors.AddUnique(SphereHit.GetActor());

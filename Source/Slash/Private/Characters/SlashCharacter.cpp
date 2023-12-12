@@ -26,7 +26,7 @@ ASlashCharacter::ASlashCharacter()
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
-	
+
 	GetMesh()->SetCollisionObjectType(ECC_WorldDynamic);
 	GetMesh()->SetCollisionResponseToAllChannels(ECR_Ignore);
 	GetMesh()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
@@ -47,9 +47,12 @@ void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	}
 }
 
-void ASlashCharacter::GetHit_Implementation(const FVector& ImpactPoint)
+void ASlashCharacter::GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter)
 {
-	Super::GetHit_Implementation(ImpactPoint);
+	Super::GetHit_Implementation(ImpactPoint, Hitter);
+
+	SetWeaponCollisionEnabled(ECollisionEnabled::NoCollision);
+	
 	ActionState = EActionState::EAS_HitReaction;
 }
 
@@ -73,7 +76,7 @@ void ASlashCharacter::AttackEnd()
 {
 	ActionState = EActionState::EAS_Unoccupied;
 
-	if(EquippedWeapon)
+	if (EquippedWeapon)
 	{
 		EquippedWeapon->IgnoreActors.Empty();
 	}
