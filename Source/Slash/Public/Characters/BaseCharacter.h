@@ -34,30 +34,37 @@ protected:
 
 	bool IsAlive();
 	void DisableCapsule();
+	/** Combat */
 	void DirectionalHitReact(const FVector& ImpactPoint);
 	void PlayHitSound(const FVector& ImpactPoint);
 	void SpawnHitParticles(const FVector& ImpactPoint);
-	void PlayHitReactMontage(const FName& SectionName);
-	virtual int32 PlayAttackMontage(UAnimMontage* CurrentAttackMontage);
-	virtual int32 PlayDeathMontage();
-	
 	virtual void Die();
 	virtual bool CanAttack();
 	virtual void HandleDamage(float DamageAmount);
-	
+	/** Montages */
+	void PlayHitReactMontage(const FName& SectionName);
+	void StopAttackMontage();
+	virtual int32 PlayAttackMontage(UAnimMontage* CurrentAttackMontage);
+	virtual int32 PlayDeathMontage();
+
+	UFUNCTION(BlueprintCallable)
+	FVector GetTranslationWarpTarget();
+
+	UFUNCTION(BlueprintCallable)
+	FVector GetRotationWarpTarget();
+
 	UFUNCTION(BlueprintCallable)
 	virtual void AttackEnd();
-	
+
 	UFUNCTION(BlueprintCallable)
 	virtual void SetWeaponCollisionEnabled(ECollisionEnabled::Type CollisionEnabled);
-	
 
 	UPROPERTY(VisibleAnywhere)
 	UAttributeComponent* Attributes;
 
 	UPROPERTY(VisibleAnywhere, Category=Weapon)
 	AWeapon* EquippedWeapon;
-	
+
 	UPROPERTY(EditDefaultsOnly, Category="Montages")
 	UAnimMontage* AttackMontageSpear;
 
@@ -76,10 +83,16 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category="Montages")
 	UAnimMontage* AttackMontageFists;
 
+	UPROPERTY(BlueprintReadOnly, Category="Combat")
+	AActor* CombatTarget;
+
+	UPROPERTY(EditAnywhere, Category="Combat")
+	double WarpTargetDistance = 75.f;
+
 private:
 	int32 PlayRandomMontageSection(UAnimMontage* Montage, const TArray<FName>& SectionNames);
 	void PlayMontageSection(UAnimMontage* Montage, const FName& SectionName);
-	
+
 	UPROPERTY(EditDefaultsOnly, Category="Montages")
 	UAnimMontage* DeathMontage;
 

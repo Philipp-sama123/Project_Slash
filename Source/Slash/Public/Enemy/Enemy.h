@@ -54,6 +54,7 @@ protected:
 	UPROPERTY(BlueprintReadOnly)
 	EEnemyState EnemyState = EEnemyState::EES_Patrolling;
 
+
 private:
 	/** AI Behavior */
 	void InitializeEnemy();
@@ -71,12 +72,12 @@ private:
 	void Attack();
 	void LoseInterest();
 	void SpawnDefaultWeapon();
-	
+
 	bool InTargetRange(AActor* Target, double Radius);
 	bool IsOutsideCombatRadius();
 	bool IsOutsideAttackRadius();
 	bool IsInsideAttackRadius();
-	
+
 	bool IsEngaged();
 	bool IsAttacking();
 	bool IsChasing();
@@ -98,9 +99,6 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AWeapon> WeaponClass;
-
-	UPROPERTY(VisibleAnywhere, Category="Combat")
-	AActor* CombatTarget;
 
 	UPROPERTY(EditAnywhere, Category="Combat")
 	double CombatRadius = 1000.f;

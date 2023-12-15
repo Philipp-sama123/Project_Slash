@@ -56,6 +56,18 @@ void ABaseCharacter::PlayHitReactMontage(const FName& SectionName)
 	}
 }
 
+void ABaseCharacter::StopAttackMontage()
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	UE_LOG(LogTemp, Error, TEXT("StopAttackMontage TODO!!"));
+
+	if (AnimInstance && AttackMontageSword)
+	{
+		UE_LOG(LogTemp, Error, TEXT("StopAttackMontage Success TODO other attacks."));
+		AnimInstance->Montage_Stop(0.25f, AttackMontageSword); // TODO change depending on currently selected 
+	}
+}
+
 void ABaseCharacter::DirectionalHitReact(const FVector& ImpactPoint)
 {
 	const FVector ForwardVector = GetActorForwardVector();
@@ -121,6 +133,29 @@ int32 ABaseCharacter::PlayAttackMontage(UAnimMontage* CurrentAttackMontage)
 int32 ABaseCharacter::PlayDeathMontage()
 {
 	return PlayRandomMontageSection(DeathMontage, DeathMontageSections);
+}
+
+FVector ABaseCharacter::GetTranslationWarpTarget()
+{
+	// just go to a certain amount there
+	if (CombatTarget == nullptr)
+		return FVector();
+
+	const FVector CombatTargetLocation = CombatTarget->GetActorLocation();
+	const FVector Location = GetActorLocation();
+
+	FVector TargetToMe = (Location - CombatTargetLocation).GetSafeNormal();
+	TargetToMe = WarpTargetDistance * TargetToMe;
+	return TargetToMe + CombatTargetLocation;
+}
+
+FVector ABaseCharacter::GetRotationWarpTarget()
+{
+	if (CombatTarget)
+	{
+		return CombatTarget->GetActorLocation();
+	}
+	return FVector();
 }
 
 void ABaseCharacter::DisableCapsule()
