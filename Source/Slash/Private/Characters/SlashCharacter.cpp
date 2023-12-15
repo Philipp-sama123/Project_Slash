@@ -10,7 +10,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Items/Weapons/Weapon.h"
-#include "Components/BoxComponent.h"
+#include "Components/SphereComponent.h"
 
 ASlashCharacter::ASlashCharacter()
 {
@@ -32,6 +32,10 @@ ASlashCharacter::ASlashCharacter()
 	GetMesh()->SetCollisionResponseToChannel(ECC_Visibility, ECR_Block);
 	GetMesh()->SetCollisionResponseToChannel(ECC_WorldDynamic, ECR_Overlap);
 	GetMesh()->SetGenerateOverlapEvents(true);
+
+	CombatTargetSphereComponent = CreateDefaultSubobject<USphereComponent>("CombatTargetSphereComponent");
+	CombatTargetSphereComponent->SetupAttachment(GetRootComponent());
+	CombatTargetSphereComponent->SetSphereRadius(250.f);
 }
 
 void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -52,7 +56,7 @@ void ASlashCharacter::GetHit_Implementation(const FVector& ImpactPoint, AActor* 
 	Super::GetHit_Implementation(ImpactPoint, Hitter);
 
 	SetWeaponCollisionEnabled(ECollisionEnabled::NoCollision);
-	
+
 	ActionState = EActionState::EAS_HitReaction;
 }
 
@@ -68,6 +72,8 @@ void ASlashCharacter::BeginPlay()
 			Subsystem->AddMappingContext(SlashContext, 0);
 		}
 	}
+	CombatTargetSphereComponent->OnComponentBeginOverlap.AddDynamic(this, &ASlashCharacter::OnCombatTargetSphereBeginOverlap);
+	CombatTargetSphereComponent->OnComponentEndOverlap.AddDynamic(this, &ASlashCharacter::OnCombatTargetSphereEndOverlap);
 
 	Tags.Add(FName("EngageableTarget"));
 }
@@ -264,6 +270,50 @@ void ASlashCharacter::Disarm()
 	PlayEquipMontage(FName("Unequip"));
 	CharacterState = ECharacterState::ECS_Unequipped;
 	ActionState = EActionState::EAS_EquippingWeapon;
+}
+
+void ASlashCharacter::SelectClosestCombatTarget()
+{
+	if (CombatTargetsInRange.Num() > 0)
+	{
+		const FVector MyLocation = GetActorLocation();
+		FVector ClosestEnemyDistance(10000.f);
+		AActor* ClosestEnemy{};
+		for (const auto CombatTargetInRange : CombatTargetsInRange)
+		{
+			FVector DistanceToEnemy = MyLocation - CombatTargetInRange->GetActorLocation();
+			if (DistanceToEnemy.Length() < ClosestEnemyDistance.Length())
+			{
+				ClosestEnemy = CombatTargetInRange;
+				ClosestEnemyDistance = DistanceToEnemy;
+			}
+		}
+		CombatTarget = ClosestEnemy;
+	}
+}
+
+void ASlashCharacter::OnCombatTargetSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+                                                       UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep,
+                                                       const FHitResult& SweepResult)
+{
+	if (OtherActor->ActorHasTag(FName("Enemy")))
+	{
+		CombatTargetsInRange.AddUnique(OtherActor);
+		SelectClosestCombatTarget();
+	}
+}
+
+void ASlashCharacter::OnCombatTargetSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+                                                     UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+	if (CombatTargetsInRange.Contains(OtherActor))
+	{
+		CombatTargetsInRange.Remove(OtherActor);
+	}
+	if (CombatTarget == OtherActor)
+	{
+		CombatTarget = nullptr;
+	}
 }
 
 void ASlashCharacter::AttachWeaponOnBack()

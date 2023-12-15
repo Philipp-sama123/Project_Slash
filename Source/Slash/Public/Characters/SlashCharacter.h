@@ -10,6 +10,7 @@
 #include "InputActionValue.h"
 #include "SlashCharacter.generated.h"
 
+class USphereComponent;
 class UInputMappingContext;
 class UInputComponent;
 class UInputAction;
@@ -55,6 +56,15 @@ protected:
 	bool CanArm();
 	void Arm();
 	void Disarm();
+	void SelectClosestCombatTarget();
+
+	UFUNCTION()
+	void OnCombatTargetSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+	                                      int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void OnCombatTargetSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+	                                    int32 OtherBodyIndex);
 
 	UFUNCTION(BlueprintCallable)
 	void AttachWeaponOnBack();
@@ -67,6 +77,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	void HitReactEnd();
+
+	UPROPERTY(VisibleAnywhere, Category="Combat")
+	TArray<AActor*> CombatTargetsInRange;
 
 	UPROPERTY(EditAnywhere, Category="Input")
 	UInputMappingContext* SlashContext;
@@ -98,6 +111,9 @@ private:
 
 	UPROPERTY(VisibleInstanceOnly)
 	AItem* OverlappingItem;
+
+	UPROPERTY(VisibleAnywhere)
+	USphereComponent* CombatTargetSphereComponent;
 
 	UPROPERTY(EditDefaultsOnly, Category="Montages")
 	UAnimMontage* EquipMontageSpear;
