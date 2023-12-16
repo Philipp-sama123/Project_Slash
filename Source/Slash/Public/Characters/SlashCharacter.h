@@ -30,7 +30,10 @@ public:
 	ASlashCharacter();
 	/** < AActor >*/
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
+	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
+	                         AActor* DamageCauser) override;
 	/** </ AActor >*/
+	
 	/** < ABaseCharacter >*/
 	virtual void GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter) override;
 	/** </ ABaseCharacter >*/
