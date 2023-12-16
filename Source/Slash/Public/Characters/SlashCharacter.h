@@ -10,6 +10,7 @@
 #include "InputActionValue.h"
 #include "SlashCharacter.generated.h"
 
+class USlashOverlay;
 class USphereComponent;
 class UInputMappingContext;
 class UInputComponent;
@@ -30,10 +31,13 @@ public:
 	ASlashCharacter();
 	/** < AActor >*/
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
+	/** < ACharacter >*/
+	virtual void Jump() override;
+	/** </ ACharacter >*/
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator,
 	                         AActor* DamageCauser) override;
 	/** </ AActor >*/
-	
+
 	/** < ABaseCharacter >*/
 	virtual void GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter) override;
 	/** </ ABaseCharacter >*/
@@ -45,6 +49,7 @@ protected:
 	/** < ABaseCharacter >*/
 	virtual void AttackEnd() override;
 	virtual bool CanAttack() override;
+	virtual void Die() override;
 	/** </ ABaseCharacter >*/
 
 	/** Input Actions */
@@ -102,8 +107,14 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Input")
 	UInputAction* AttackAction;
 
+	UPROPERTY()
+	USlashOverlay* SlashOverlay;
+
 private:
+	void SetHUDHealth();
+	void InitializeSlashOverlay();
 	UAnimMontage* SelectCurrentAttackMontage() const;
+	bool IsUnoccupied();
 
 	/** Character Components */
 	UPROPERTY(VisibleAnywhere)
@@ -142,5 +153,6 @@ private:
 public:
 	FORCEINLINE void SetOverlappingItem(AItem* Item) { OverlappingItem = Item; }
 	FORCEINLINE ECharacterState GetCharacterState() const { return CharacterState; }
+	FORCEINLINE EActionState GetActionState() const { return ActionState; }
 	FORCEINLINE AWeapon* GetCurrentEquippedWeapon() const { return EquippedWeapon; }
 };

@@ -9,8 +9,11 @@
 
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Components/AttributeComponent.h"
 #include "Items/Weapons/Weapon.h"
 #include "Components/SphereComponent.h"
+#include "HUD/SlashHUD.h"
+#include "HUD/SlashOverlay.h"
 
 ASlashCharacter::ASlashCharacter()
 {
@@ -35,7 +38,7 @@ ASlashCharacter::ASlashCharacter()
 
 	CombatTargetSphereComponent = CreateDefaultSubobject<USphereComponent>("CombatTargetSphereComponent");
 	CombatTargetSphereComponent->SetupAttachment(GetRootComponent());
-	CombatTargetSphereComponent->SetSphereRadius(250.f);
+	CombatTargetSphereComponent->SetSphereRadius(125.f);
 }
 
 void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -45,15 +48,24 @@ void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 	{
 		EnhancedInputComponent->BindAction(MovementAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Move);
 		EnhancedInputComponent->BindAction(LookingAction, ETriggerEvent::Triggered, this, &ASlashCharacter::Look);
-		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ACharacter::Jump);
+		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ASlashCharacter::Jump);
 		EnhancedInputComponent->BindAction(EquipAction, ETriggerEvent::Started, this, &ASlashCharacter::Equip);
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &ASlashCharacter::Attack);
+	}
+}
+
+void ASlashCharacter::Jump()
+{
+	if (IsUnoccupied())
+	{
+		Super::Jump();
 	}
 }
 
 float ASlashCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
 	HandleDamage(DamageAmount);
+	SetHUDHealth();
 	return DamageAmount;
 }
 
@@ -62,8 +74,10 @@ void ASlashCharacter::GetHit_Implementation(const FVector& ImpactPoint, AActor* 
 	Super::GetHit_Implementation(ImpactPoint, Hitter);
 
 	SetWeaponCollisionEnabled(ECollisionEnabled::NoCollision);
-
-	ActionState = EActionState::EAS_HitReaction;
+	if (Attributes && Attributes->GetHealthPercent() > 0.f)
+	{
+		ActionState = EActionState::EAS_HitReaction;
+	}
 }
 
 void ASlashCharacter::BeginPlay()
@@ -78,10 +92,13 @@ void ASlashCharacter::BeginPlay()
 			Subsystem->AddMappingContext(SlashContext, 0);
 		}
 	}
+
 	CombatTargetSphereComponent->OnComponentBeginOverlap.AddDynamic(this, &ASlashCharacter::OnCombatTargetSphereBeginOverlap);
 	CombatTargetSphereComponent->OnComponentEndOverlap.AddDynamic(this, &ASlashCharacter::OnCombatTargetSphereEndOverlap);
 
 	Tags.Add(FName("EngageableTarget"));
+
+	InitializeSlashOverlay();
 }
 
 void ASlashCharacter::AttackEnd()
@@ -98,6 +115,14 @@ bool ASlashCharacter::CanAttack()
 {
 	return ActionState == EActionState::EAS_Unoccupied &&
 		CharacterState != ECharacterState::ECS_Unequipped;
+}
+
+void ASlashCharacter::Die()
+{
+	Super::Die();
+	
+	DisableMeshCollision();
+	ActionState = EActionState::EAS_Dead;
 }
 
 void ASlashCharacter::Move(const FInputActionValue& Value)
@@ -400,6 +425,34 @@ void ASlashCharacter::HitReactEnd()
 	ActionState = EActionState::EAS_Unoccupied;
 }
 
+void ASlashCharacter::SetHUDHealth()
+{
+	if (SlashOverlay && Attributes)
+	{
+		SlashOverlay->SetHealthBarPercent(Attributes->GetHealthPercent());
+	}
+}
+
+void ASlashCharacter::InitializeSlashOverlay()
+{
+	APlayerController* PlayerController = Cast<APlayerController>(GetController());
+	if (PlayerController)
+	{
+		ASlashHUD* SlashHUD = Cast<ASlashHUD>(PlayerController->GetHUD());
+		if (SlashHUD)
+		{
+			SlashOverlay = SlashHUD->GetSlashOverlay();
+			if (SlashOverlay && Attributes)
+			{
+				SlashOverlay->SetHealthBarPercent(Attributes->GetHealthPercent());
+				SlashOverlay->SetStaminaBarPercent(1);
+				SlashOverlay->SetGoldCount(1);
+				SlashOverlay->SetSoulsCount(1);
+			}
+		}
+	}
+}
+
 UAnimMontage* ASlashCharacter::SelectCurrentAttackMontage() const
 {
 	switch (CharacterState)
@@ -419,4 +472,9 @@ UAnimMontage* ASlashCharacter::SelectCurrentAttackMontage() const
 	default:
 		return nullptr;
 	}
+}
+
+bool ASlashCharacter::IsUnoccupied()
+{
+	return ActionState == EActionState::EAS_Unoccupied;
 }

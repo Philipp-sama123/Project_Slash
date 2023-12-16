@@ -3,13 +3,13 @@
 
 #include "Characters/BaseCharacter.h"
 
+#include "Characters/CharacterTypes.h"
 #include "Components/AttributeComponent.h"
 #include  "Components/BoxComponent.h"
 #include "Components/CapsuleComponent.h"
 
 #include "Items/Weapons/Weapon.h"
 #include "Kismet/GameplayStatics.h"
-
 
 ABaseCharacter::ABaseCharacter()
 {
@@ -132,7 +132,15 @@ int32 ABaseCharacter::PlayAttackMontage(UAnimMontage* CurrentAttackMontage)
 
 int32 ABaseCharacter::PlayDeathMontage()
 {
-	return PlayRandomMontageSection(DeathMontage, DeathMontageSections);
+	const int32 Selection = PlayRandomMontageSection(DeathMontage, DeathMontageSections);
+
+	TEnumAsByte<EDeathPose> Pose(Selection);
+
+	if (Pose < EDeathPose::EDP_MAX)
+	{
+		DeathPose = Pose;
+	}
+	return Selection;
 }
 
 FVector ABaseCharacter::GetTranslationWarpTarget()
@@ -161,6 +169,11 @@ FVector ABaseCharacter::GetRotationWarpTarget()
 void ABaseCharacter::DisableCapsule()
 {
 	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+}
+
+void ABaseCharacter::DisableMeshCollision()
+{
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void ABaseCharacter::PlayHitSound(const FVector& ImpactPoint)
@@ -202,6 +215,8 @@ void ABaseCharacter::AttackEnd()
 
 void ABaseCharacter::Die()
 {
+	Tags.Add(FName("Dead"));
+	PlayDeathMontage();
 }
 
 void ABaseCharacter::HandleDamage(float DamageAmount)

@@ -7,6 +7,7 @@
 #include "Interfaces/HitInterface.h"
 #include "BaseCharacter.generated.h"
 
+enum EDeathPose : uint8;
 class AWeapon;
 class UAttributeComponent;
 class UAnimMontage;
@@ -31,8 +32,8 @@ protected:
 	/** < AActor > */
 	virtual void BeginPlay() override;
 	/** </ AActor > */
-
 	bool IsAlive();
+	void DisableMeshCollision();
 	void DisableCapsule();
 	/** Combat */
 	void DirectionalHitReact(const FVector& ImpactPoint);
@@ -89,6 +90,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Combat")
 	double WarpTargetDistance = 75.f;
 
+	UPROPERTY(BlueprintReadOnly)
+	TEnumAsByte<EDeathPose> DeathPose;
+
 private:
 	int32 PlayRandomMontageSection(UAnimMontage* Montage, const TArray<FName>& SectionNames);
 	void PlayMontageSection(UAnimMontage* Montage, const FName& SectionName);
@@ -110,4 +114,7 @@ private:
 
 	UPROPERTY(EditAnywhere, Category="Visual Effects")
 	UParticleSystem* HitParticles;
+
+public:
+	FORCEINLINE TEnumAsByte<EDeathPose> GetDeathPose() const { return DeathPose; }
 };

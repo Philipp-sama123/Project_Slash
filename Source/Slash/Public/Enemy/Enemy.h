@@ -5,7 +5,6 @@
 #include "CoreMinimal.h"
 #include "Characters/BaseCharacter.h"
 #include "Characters/CharacterTypes.h"
-#include "GameFramework/Character.h"
 
 #include "Enemy.generated.h"
 
@@ -44,16 +43,11 @@ protected:
 	virtual bool CanAttack() override;
 	virtual void AttackEnd() override;
 	virtual void HandleDamage(float DamageAmount) override;
-	virtual int32 PlayDeathMontage() override;
 	virtual void Die() override;
 	/** </ BaseCharacter > */
 
 	UPROPERTY(BlueprintReadOnly)
-	TEnumAsByte<EDeathPose> DeathPose;
-
-	UPROPERTY(BlueprintReadOnly)
 	EEnemyState EnemyState = EEnemyState::EES_Patrolling;
-
 
 private:
 	/** AI Behavior */
@@ -104,7 +98,7 @@ private:
 	double CombatRadius = 1000.f;
 
 	UPROPERTY(EditAnywhere, Category="Combat")
-	double AttackRadius = 150.f;
+	double AttackRadius = 200.f;
 
 	UPROPERTY(EditAnywhere, Category="Combat")
 	float DeathLifeSpan = 5.f;
