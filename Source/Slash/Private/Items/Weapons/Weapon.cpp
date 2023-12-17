@@ -55,9 +55,9 @@ void AWeapon::DisableSphereCollision()
 
 void AWeapon::DisableEmbersEffect()
 {
-	if (EmbersEffect)
+	if (ItemEffect)
 	{
-		EmbersEffect->Deactivate();
+		ItemEffect->Deactivate();
 	}
 }
 

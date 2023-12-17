@@ -80,6 +80,16 @@ void ASlashCharacter::GetHit_Implementation(const FVector& ImpactPoint, AActor* 
 	}
 }
 
+void ASlashCharacter::SetOverlappingItem(AItem* Item)
+{
+	OverlappingItem = Item;
+}
+
+void ASlashCharacter::AddSouls(ASoul* Soul)
+{
+	UE_LOG(LogTemp, Warning, TEXT("ASlashCharacter::AddSouls called"));
+}
+
 void ASlashCharacter::BeginPlay()
 {
 	Super::BeginPlay();
@@ -120,7 +130,7 @@ bool ASlashCharacter::CanAttack()
 void ASlashCharacter::Die()
 {
 	Super::Die();
-	
+
 	DisableMeshCollision();
 	ActionState = EActionState::EAS_Dead;
 }

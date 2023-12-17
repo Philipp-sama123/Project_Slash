@@ -14,14 +14,14 @@ AItem::AItem()
 	ItemMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("ItemMeshComponent"));
 	ItemMesh->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	ItemMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	
+
 	RootComponent = ItemMesh;
 
 	Sphere = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere"));
 	Sphere->SetupAttachment(GetRootComponent());
 
-	EmbersEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Embers"));
-	EmbersEffect->SetupAttachment(GetRootComponent());
+	ItemEffect = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Embers"));
+	ItemEffect->SetupAttachment(GetRootComponent());
 }
 
 void AItem::BeginPlay()
@@ -56,24 +56,17 @@ float AItem::TransformedCos()
 void AItem::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
                                  int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	ASlashCharacter* SlashCharacter = Cast<ASlashCharacter>(OtherActor);
-	if (SlashCharacter)
+	if (IPickupInterface* PickupInterface = Cast<IPickupInterface>(OtherActor))
 	{
-		GEngine->AddOnScreenDebugMessage(1, 30.f, FColor::Red, OtherActor->GetName());
-		// ToDo: Should be like this, but didnt work: SlashCharacter->SetOverlappingItem(nullptr);
-		// ToDo: the current overlapping item is not unequipped ... maybe add some logic on EndOverlap
-		// ToDO: then reset SlashCharacter afterwards
-		SlashCharacter->SetOverlappingItem(this);
+		PickupInterface->SetOverlappingItem(this);
 	}
 }
 
 void AItem::OnSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
                                int32 OtherBodyIndex)
 {
-	FString otherActorName = OtherActor->GetName();
-	otherActorName = otherActorName + " end";
-	if (GEngine)
+	if (IPickupInterface* PickupInterface = Cast<IPickupInterface>(OtherActor))
 	{
-		GEngine->AddOnScreenDebugMessage(1, 30.f, FColor::Red, otherActorName);
+		PickupInterface->SetOverlappingItem(nullptr);
 	}
 }

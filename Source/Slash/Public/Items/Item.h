@@ -60,7 +60,7 @@ protected:
 	USphereComponent* Sphere;
 
 	UPROPERTY(EditAnywhere)
-	UNiagaraComponent* EmbersEffect;  
+	UNiagaraComponent* ItemEffect;  
 
 private:
 	UPROPERTY(VisibleAnywhere, Category = "Sine Parameters", BlueprintReadOnly, meta = (AllowPrivateAccess = "true"))
