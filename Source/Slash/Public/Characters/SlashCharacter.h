@@ -23,6 +23,7 @@ class UCameraComponent;
 class AItem;
 class ASoul;
 class AWeapon;
+class ATreasure;
 
 UCLASS()
 class SLASH_API ASlashCharacter : public ABaseCharacter, public IPickupInterface
@@ -47,6 +48,7 @@ public:
 	/** < IPickupInterface >*/
 	virtual void SetOverlappingItem(AItem* Item) override;
 	virtual void AddSouls(ASoul* Soul) override;
+	virtual void AddGold(ATreasure* Treasure) override;
 	/** </ IPickupInterface >*/
 protected:
 	/** < AActor >*/
