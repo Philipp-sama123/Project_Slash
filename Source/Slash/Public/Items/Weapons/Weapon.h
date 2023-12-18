@@ -31,6 +31,8 @@ public:
 	void ExecuteGetHit(FHitResult SphereHit);
 	bool IsActorSameType(AActor* OtherActor);
 	void Equip(USceneComponent* InParent, FName InSocketName, AActor* NewOwner, APawn* NewInstigator);
+	
+	UPROPERTY()
 	TArray<AActor*> IgnoreActors;
 
 	UFUNCTION(BlueprintImplementableEvent)

@@ -47,6 +47,7 @@ protected:
 	void StopAttackMontage();
 	virtual int32 PlayAttackMontage(UAnimMontage* CurrentAttackMontage);
 	virtual int32 PlayDeathMontage();
+	virtual void PlayDodgeMontage();
 
 	UFUNCTION(BlueprintCallable)
 	FVector GetTranslationWarpTarget();
@@ -56,6 +57,9 @@ protected:
 
 	UFUNCTION(BlueprintCallable)
 	virtual void AttackEnd();
+
+	UFUNCTION(BlueprintCallable)
+	virtual void DodgeEnd();
 
 	UFUNCTION(BlueprintCallable)
 	virtual void SetWeaponCollisionEnabled(ECollisionEnabled::Type CollisionEnabled);
@@ -88,7 +92,7 @@ protected:
 	AActor* CombatTarget;
 
 	UPROPERTY(EditAnywhere, Category="Combat")
-	double WarpTargetDistance = 75.f;
+	double WarpTargetDistance = 100.f;
 
 	UPROPERTY(BlueprintReadOnly)
 	TEnumAsByte<EDeathPose> DeathPose;
@@ -99,6 +103,9 @@ private:
 
 	UPROPERTY(EditDefaultsOnly, Category="Montages")
 	UAnimMontage* DeathMontage;
+
+	UPROPERTY(EditDefaultsOnly, Category="Montages")
+	UAnimMontage* DodgeMontage;
 
 	UPROPERTY(EditDefaultsOnly, Category="Montages")
 	UAnimMontage* HitReactMontage;

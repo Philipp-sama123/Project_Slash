@@ -8,6 +8,7 @@
 
 #include "Enemy.generated.h"
 
+class ASoul;
 class UPawnSensingComponent;
 class UHealthBarComponent;
 class UAttributeComponent;
@@ -45,6 +46,8 @@ protected:
 	virtual void HandleDamage(float DamageAmount) override;
 	virtual void Die() override;
 	/** </ BaseCharacter > */
+
+	void SpawnSoul();
 
 	UPROPERTY(BlueprintReadOnly)
 	EEnemyState EnemyState = EEnemyState::EES_Patrolling;
@@ -93,16 +96,7 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AWeapon> WeaponClass;
-
-	UPROPERTY(EditAnywhere, Category="Combat")
-	double CombatRadius = 1000.f;
-
-	UPROPERTY(EditAnywhere, Category="Combat")
-	double AttackRadius = 200.f;
-
-	UPROPERTY(EditAnywhere, Category="Combat")
-	float DeathLifeSpan = 5.f;
-
+	
 	UPROPERTY(EditInstanceOnly, Category="AI Navigation")
 	AAIController* EnemyController;
 
@@ -136,4 +130,17 @@ private:
 
 	UPROPERTY(EditAnywhere, Category="Combat")
 	float ChasingSpeed = 250.f;
+
+	UPROPERTY(EditAnywhere, Category="Combat")
+	double CombatRadius = 1000.f;
+
+	UPROPERTY(EditAnywhere, Category="Combat")
+	double AttackRadius = 200.f;
+
+	UPROPERTY(EditAnywhere, Category="Combat")
+	float DeathLifeSpan = 10.f;
+
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<ASoul> SoulClass;
+	
 };

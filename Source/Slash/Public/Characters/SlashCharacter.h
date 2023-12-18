@@ -57,8 +57,10 @@ protected:
 
 	/** < ABaseCharacter >*/
 	virtual void AttackEnd() override;
+	virtual void DodgeEnd() override;
 	virtual bool CanAttack() override;
 	virtual void Die() override;
+	virtual void PlayDodgeMontage() override;
 	/** </ ABaseCharacter >*/
 
 	/** Input Actions */
@@ -66,6 +68,7 @@ protected:
 	void Look(const FInputActionValue& Value);
 	void Equip(const FInputActionValue& Value);
 	void Attack(const FInputActionValue& Value);
+	void Dodge(const FInputActionValue& Value);
 
 	void EquipWeapon(AWeapon* Weapon);
 	void PlayEquipMontage(const FName& SectionName);
@@ -116,6 +119,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category="Input")
 	UInputAction* AttackAction;
 
+	UPROPERTY(EditAnywhere, Category="Input")
+	UInputAction* DodgeAction;
+
 	UPROPERTY()
 	USlashOverlay* SlashOverlay;
 
@@ -156,7 +162,10 @@ private:
 	UPROPERTY(EditDefaultsOnly, Category="Montages")
 	UAnimMontage* EquipMontageFists;
 
+	UPROPERTY(VisibleAnywhere, Category="States")
 	ECharacterState CharacterState = ECharacterState::ECS_Unequipped;
+
+	UPROPERTY(VisibleAnywhere, Category="States")
 	EActionState ActionState = EActionState::EAS_Unoccupied;
 
 public:

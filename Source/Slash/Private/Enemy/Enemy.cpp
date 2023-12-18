@@ -9,6 +9,7 @@
 #include "Perception/PawnSensingComponent.h"
 #include "Components/AttributeComponent.h"
 #include "HUD/HealthBarComponent.h"
+#include "Items/Soul.h"
 #include "Items/Weapons/Weapon.h"
 
 AEnemy::AEnemy()
@@ -123,6 +124,20 @@ void AEnemy::HandleDamage(float DamageAmount)
 	}
 }
 
+void AEnemy::SpawnSoul()
+{
+	UWorld* World = GetWorld();
+	if (World && Attributes)
+	{
+		FVector SpawnLocation = GetActorLocation() + FVector(0.f, 0.f, 50.f);
+		ASoul* SpawnedSoul = World->SpawnActor<ASoul>(SoulClass, SpawnLocation, GetActorRotation());
+		if (SpawnedSoul)
+		{
+			SpawnedSoul->SetSouls(Attributes->GetSouls());
+		}
+	}
+}
+
 void AEnemy::Die()
 {
 	Super::Die();
@@ -134,6 +149,8 @@ void AEnemy::Die()
 	SetLifeSpan(DeathLifeSpan);
 	GetCharacterMovement()->bOrientRotationToMovement = false;
 	SetWeaponCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	SpawnSoul();
 }
 
 void AEnemy::InitializeEnemy()
@@ -249,7 +266,7 @@ void AEnemy::Attack()
 		CombatTarget = nullptr;
 		return;
 	}
-	
+
 	EnemyState = EEnemyState::EES_Engaged;
 	PlayAttackMontage(SelectCurrentAttackMontage());
 }
@@ -342,7 +359,7 @@ void AEnemy::PawnSeen(APawn* SeenPawn)
 		EnemyState != EEnemyState::EES_Chasing &&
 		EnemyState < EEnemyState::EES_Attacking &&
 		SeenPawn->ActorHasTag(FName("EngageableTarget"));
-		!SeenPawn->ActorHasTag(FName("Dead"));
+	!SeenPawn->ActorHasTag(FName("Dead"));
 
 	if (bShouldChaseTarget)
 	{

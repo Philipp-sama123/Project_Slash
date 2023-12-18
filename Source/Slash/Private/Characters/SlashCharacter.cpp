@@ -53,6 +53,7 @@ void ASlashCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Started, this, &ASlashCharacter::Jump);
 		EnhancedInputComponent->BindAction(EquipAction, ETriggerEvent::Started, this, &ASlashCharacter::Equip);
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Started, this, &ASlashCharacter::Attack);
+		EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Started, this, &ASlashCharacter::Dodge);
 	}
 }
 
@@ -136,6 +137,12 @@ void ASlashCharacter::AttackEnd()
 	}
 }
 
+void ASlashCharacter::DodgeEnd()
+{
+	Super::DodgeEnd();
+	ActionState = EActionState::EAS_Unoccupied;
+}
+
 bool ASlashCharacter::CanAttack()
 {
 	return ActionState == EActionState::EAS_Unoccupied &&
@@ -148,6 +155,13 @@ void ASlashCharacter::Die()
 
 	DisableMeshCollision();
 	ActionState = EActionState::EAS_Dead;
+}
+
+void ASlashCharacter::PlayDodgeMontage()
+{
+	if (ActionState != EActionState::EAS_Unoccupied) return;
+	Super::PlayDodgeMontage();
+	ActionState = EActionState::EAS_Dodge;
 }
 
 void ASlashCharacter::Move(const FInputActionValue& Value)
@@ -203,6 +217,11 @@ void ASlashCharacter::Attack(const FInputActionValue& Value)
 		PlayAttackMontage(SelectCurrentAttackMontage());
 		ActionState = EActionState::EAS_Attacking;
 	}
+}
+
+void ASlashCharacter::Dodge(const FInputActionValue& Value)
+{
+	PlayDodgeMontage();
 }
 
 void ASlashCharacter::EquipWeapon(AWeapon* Weapon)
@@ -362,13 +381,13 @@ void ASlashCharacter::OnCombatTargetSphereBeginOverlap(UPrimitiveComponent* Over
 void ASlashCharacter::OnCombatTargetSphereEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
                                                      UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (CombatTargetsInRange.Contains(OtherActor))
-	{
-		CombatTargetsInRange.Remove(OtherActor);
-	}
 	if (CombatTarget == OtherActor)
 	{
 		CombatTarget = nullptr;
+	}
+	if (CombatTargetsInRange.Contains(OtherActor))
+	{
+		CombatTargetsInRange.Remove(OtherActor);
 	}
 }
 
