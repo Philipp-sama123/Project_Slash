@@ -19,7 +19,7 @@
 
 ASlashCharacter::ASlashCharacter()
 {
-	PrimaryActorTick.bCanEverTick = false;
+	PrimaryActorTick.bCanEverTick = true;
 
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(GetRootComponent());
@@ -127,6 +127,17 @@ void ASlashCharacter::BeginPlay()
 	InitializeSlashOverlay();
 }
 
+void ASlashCharacter::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	if (Attributes && SlashOverlay)
+	{
+		Attributes->RegenerateStamina(DeltaTime);
+		SlashOverlay->SetStaminaBarPercent(Attributes->GetStaminaPercent());
+	}
+}
+
 void ASlashCharacter::AttackEnd()
 {
 	ActionState = EActionState::EAS_Unoccupied;
@@ -157,18 +168,11 @@ void ASlashCharacter::Die()
 	ActionState = EActionState::EAS_Dead;
 }
 
-void ASlashCharacter::PlayDodgeMontage()
-{
-	if (ActionState != EActionState::EAS_Unoccupied) return;
-	Super::PlayDodgeMontage();
-	ActionState = EActionState::EAS_Dodge;
-}
-
 void ASlashCharacter::Move(const FInputActionValue& Value)
 {
 	// ToDo: think of running and equip
 	// ToDo: think of running attacks 
-	if (ActionState != EActionState::EAS_Unoccupied) return;
+	if (IsOccupied()) return;
 
 	const FVector2d MovementVector = Value.Get<FVector2d>();
 
@@ -219,9 +223,29 @@ void ASlashCharacter::Attack(const FInputActionValue& Value)
 	}
 }
 
+bool ASlashCharacter::IsOccupied()
+{
+	return ActionState != EActionState::EAS_Unoccupied;
+}
+
+bool ASlashCharacter::HasEnoughStaminaToDodge()
+{
+	return Attributes && Attributes->GetStamina() > Attributes->GetDodgeCost();
+}
+
 void ASlashCharacter::Dodge(const FInputActionValue& Value)
 {
+	if (IsOccupied() || !HasEnoughStaminaToDodge()) return;
+
 	PlayDodgeMontage();
+
+	if (Attributes && SlashOverlay)
+	{
+		Attributes->UseStamina(Attributes->GetDodgeCost());
+		SlashOverlay->SetStaminaBarPercent(Attributes->GetStaminaPercent());
+	}
+
+	ActionState = EActionState::EAS_Dodge;
 }
 
 void ASlashCharacter::EquipWeapon(AWeapon* Weapon)

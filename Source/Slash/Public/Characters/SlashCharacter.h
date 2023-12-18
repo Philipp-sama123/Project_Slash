@@ -53,6 +53,7 @@ public:
 protected:
 	/** < AActor >*/
 	virtual void BeginPlay() override;
+	virtual void Tick(float DeltaTime) override;
 	/** </ AActor >*/
 
 	/** < ABaseCharacter >*/
@@ -60,7 +61,6 @@ protected:
 	virtual void DodgeEnd() override;
 	virtual bool CanAttack() override;
 	virtual void Die() override;
-	virtual void PlayDodgeMontage() override;
 	/** </ ABaseCharacter >*/
 
 	/** Input Actions */
@@ -77,6 +77,8 @@ protected:
 	void Arm();
 	void Disarm();
 	void SelectClosestCombatTarget();
+	bool IsOccupied();
+	bool HasEnoughStaminaToDodge();
 
 	UFUNCTION()
 	void OnCombatTargetSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,

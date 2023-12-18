@@ -20,7 +20,6 @@ class SLASH_API ABaseCharacter : public ACharacter, public IHitInterface
 
 public:
 	ABaseCharacter();
-
 	/** < AActor > */
 	virtual void Tick(float DeltaTime) override;
 	/** </ AActor > */

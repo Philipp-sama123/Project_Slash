@@ -111,6 +111,12 @@ bool AEnemy::CanAttack()
 void AEnemy::AttackEnd()
 {
 	EnemyState = EEnemyState::EES_NoState;
+
+	if (EquippedWeapon)
+	{
+		EquippedWeapon->IgnoreActors.Empty();
+	}
+	
 	CheckCombatTarget();
 }
 
