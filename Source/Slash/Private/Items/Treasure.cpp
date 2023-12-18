@@ -12,13 +12,7 @@ void ATreasure::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, A
 	ASlashCharacter* SlashCharacter = Cast<ASlashCharacter>(OtherActor);
 	if (SlashCharacter)
 	{
-		if (PickupSound)
-		{
-			UGameplayStatics::PlaySoundAtLocation(
-				this,
-				PickupSound,
-				GetActorLocation());
-		}
+		PlayPickupSound();
 		Destroy();
 	}
 }

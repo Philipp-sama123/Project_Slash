@@ -3,6 +3,7 @@
 
 #include "Items/Soul.h"
 #include "Interfaces/PickupInterface.h"
+#include "NiagaraFunctionLibrary.h"
 
 void ASoul::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp,
                                  int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -11,5 +12,7 @@ void ASoul::OnSphereBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActo
 	{
 		PickupInterface->AddSouls(this);
 	}
+	SpawnPickupSystem();
+	PlayPickupSound();
 	Destroy();
 }
