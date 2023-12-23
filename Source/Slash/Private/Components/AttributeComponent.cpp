@@ -49,6 +49,11 @@ void UAttributeComponent::AddGold(int32 GoldAmount)
 	Gold += GoldAmount;
 }
 
+void UAttributeComponent::AddHealth(int32 HealthAmount)
+{
+	Health += HealthAmount;
+}
+
 
 void UAttributeComponent::RegenerateStamina(float DeltaTime)
 {

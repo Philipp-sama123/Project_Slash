@@ -14,6 +14,7 @@
 #include "Components/SphereComponent.h"
 #include "HUD/SlashHUD.h"
 #include "HUD/SlashOverlay.h"
+#include "Items/Potion.h"
 #include "Items/Soul.h"
 #include "Items/Treasure.h"
 
@@ -103,6 +104,15 @@ void ASlashCharacter::AddGold(ATreasure* Treasure)
 	{
 		Attributes->AddGold(Treasure->GetGold());
 		SlashOverlay->SetGoldCount(Attributes->GetGold());
+	}
+}
+
+void ASlashCharacter::AddHealth(APotion* Potion)
+{
+	if (Attributes && SlashOverlay)
+	{
+		Attributes->AddHealth(Potion->GetHealth());
+		SlashOverlay->SetHealthBarPercent(Attributes->GetHealthPercent());
 	}
 }
 

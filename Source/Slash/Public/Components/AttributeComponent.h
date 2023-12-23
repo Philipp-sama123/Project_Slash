@@ -54,6 +54,7 @@ public:
 
 	void AddSouls(int32 SoulsAmount);
 	void AddGold(int32 GoldAmount);
+	void AddHealth(int32 HealthAmount);
 
 	FORCEINLINE int32 GetGold() const { return Gold; }
 	FORCEINLINE int32 GetSouls() const { return Souls; }

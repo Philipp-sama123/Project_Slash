@@ -125,7 +125,8 @@ void AWeapon::PerformSphereTrace(FHitResult& SphereHit)
 
 	TArray<AActor*> ActorsToIgnore;
 
-	ActorsToIgnore.Add(this->GetOwner());
+	ActorsToIgnore.Add(this);
+	ActorsToIgnore.Add(GetOwner());
 
 	for (AActor* Actor : IgnoreActors)
 	{

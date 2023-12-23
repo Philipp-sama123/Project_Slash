@@ -49,7 +49,7 @@ protected:
 
 	void SpawnSoul();
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, Category="Combat")
 	EEnemyState EnemyState = EEnemyState::EES_Patrolling;
 
 private:
@@ -94,9 +94,9 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	UPawnSensingComponent* PawnSensing;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, Category="Combat")
 	TSubclassOf<AWeapon> WeaponClass;
-	
+
 	UPROPERTY(EditInstanceOnly, Category="AI Navigation")
 	AAIController* EnemyController;
 
@@ -138,9 +138,11 @@ private:
 	double AttackRadius = 200.f;
 
 	UPROPERTY(EditAnywhere, Category="Combat")
+	double AcceptanceRadius = 60.f;;
+
+	UPROPERTY(EditAnywhere, Category="Combat")
 	float DeathLifeSpan = 10.f;
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<ASoul> SoulClass;
-	
 };

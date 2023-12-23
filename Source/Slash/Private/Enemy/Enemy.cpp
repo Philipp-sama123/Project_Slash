@@ -83,9 +83,13 @@ void AEnemy::GetHit_Implementation(const FVector& ImpactPoint, AActor* Hitter)
 	if (!IsDead()) ShowHealthBar();
 	ClearPatrolTimer();
 	ClearAttackTimer();
+	SetWeaponCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	StopAttackMontage();
-	SetWeaponCollisionEnabled(ECollisionEnabled::NoCollision);
+	if (IsInsideAttackRadius())
+	{
+		if (!IsDead()) StartAttackTimer();
+	}
 }
 
 void AEnemy::BeginPlay()
@@ -116,7 +120,7 @@ void AEnemy::AttackEnd()
 	{
 		EquippedWeapon->IgnoreActors.Empty();
 	}
-	
+
 	CheckCombatTarget();
 }
 
@@ -227,7 +231,7 @@ void AEnemy::MoveToTarget(AActor* Target)
 
 	FAIMoveRequest MoveRequest;
 	MoveRequest.SetGoalActor(Target);
-	MoveRequest.SetAcceptanceRadius(60.f);
+	MoveRequest.SetAcceptanceRadius(AcceptanceRadius);
 
 	EnemyController->MoveTo(MoveRequest);
 }
@@ -289,7 +293,7 @@ void AEnemy::SpawnDefaultWeapon()
 	if (World && WeaponClass)
 	{
 		AWeapon* DefaultWeapon = World->SpawnActor<AWeapon>(WeaponClass);
-		DefaultWeapon->Equip(GetMesh(), FName("WEAPON_R"), this, this);
+		DefaultWeapon->Equip(GetMesh(), FName("WEAPON_SOCKET"), this, this);
 		EquippedWeapon = DefaultWeapon;
 	}
 }
