@@ -38,7 +38,10 @@ protected:
 	void DirectionalHitReact(const FVector& ImpactPoint);
 	void PlayHitSound(const FVector& ImpactPoint);
 	void SpawnHitParticles(const FVector& ImpactPoint);
-	virtual void Die();
+	
+	UFUNCTION(BlueprintNativeEvent)
+	void Die();
+	
 	virtual bool CanAttack();
 	virtual void HandleDamage(float DamageAmount);
 	/** Montages */

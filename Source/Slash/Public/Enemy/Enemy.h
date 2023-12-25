@@ -44,7 +44,7 @@ protected:
 	virtual bool CanAttack() override;
 	virtual void AttackEnd() override;
 	virtual void HandleDamage(float DamageAmount) override;
-	virtual void Die() override;
+	virtual void Die_Implementation() override;
 	/** </ BaseCharacter > */
 
 	void SpawnSoul();
