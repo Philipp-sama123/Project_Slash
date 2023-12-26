@@ -209,6 +209,10 @@ void ASlashCharacter::Equip(const FInputActionValue& Value)
 
 	if (OverlappingWeapon)
 	{
+		if (EquippedWeapon)
+		{
+			EquippedWeapon->Destroy();
+		}
 		EquipWeapon(OverlappingWeapon);
 	}
 	else
